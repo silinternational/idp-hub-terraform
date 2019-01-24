@@ -1,0 +1,103 @@
+[
+  {
+    "dnsSearchDomains": null,
+    "logConfiguration": null,
+    "entryPoint": null,
+    "portMappings": [
+      {
+        "hostPort": 0,
+        "protocol": "tcp",
+        "containerPort": 80
+      }
+    ],
+    "command": null,
+    "linuxParameters": null,
+    "cpu": ${cpu},
+    "environment": [
+      {
+        "name": "ADMIN_EMAIL",
+        "value": "${admin_email}"
+      },
+      {
+        "name": "ADMIN_NAME",
+        "value": "${admin_name}"
+      },
+      {
+        "name": "ADMIN_PASS",
+        "value": "${admin_pass}"
+      },
+      {
+        "name": "ANALYTICS_ID",
+        "value": "${analytics_id}"
+      },
+      {
+        "name": "BASE_URL_PATH",
+        "value": "https://${subdomain}.${cloudflare_domain}/"
+      },
+      {
+        "name": "ENABLE_HUB_AUTHPROCS",
+        "value": "true"
+      },
+      {
+        "name": "HUB_MODE",
+        "value": "true"
+      },
+      {
+        "name": "IDP_DISPLAY_NAME",
+        "value": "${idp_display_name}"
+      },
+      {
+        "name": "IDP_NAME",
+        "value": "${idp_name}"
+      },
+      {
+        "name": "LOGENTRIES_KEY",
+        "value": "${logentries_key}"
+      },
+      {
+        "name": "MEMCACHE_HOST1",
+        "value": "${memcache_host1}"
+      },
+      {
+        "name": "MEMCACHE_HOST2",
+        "value": "${memcache_host2}"
+      },
+      {
+        "name": "SECRET_SALT",
+        "value": "${secret_salt}"
+      },
+      {
+        "name": "SESSION_STORE_TYPE",
+        "value": "${session_store_type}"
+      },
+      {
+        "name": "SHOW_SAML_ERRORS",
+        "value": "${show_saml_errors}"
+      }
+    ],
+    "ulimits": null,
+    "dnsServers": null,
+    "mountPoints": [],
+    "workingDirectory": null,
+    "secrets": null,
+    "dockerSecurityOptions": null,
+    "memory": ${memory},
+    "memoryReservation": ${memory},
+    "volumesFrom": [],
+    "image": "${docker_image}:${docker_tag}",
+    "disableNetworking": null,
+    "interactive": null,
+    "healthCheck": null,
+    "essential": true,
+    "links": null,
+    "hostname": null,
+    "extraHosts": null,
+    "pseudoTerminal": null,
+    "user": null,
+    "readonlyRootFilesystem": null,
+    "dockerLabels": null,
+    "systemControls": null,
+    "privileged": null,
+    "name": "hub"
+  }
+]
