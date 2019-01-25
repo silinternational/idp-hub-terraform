@@ -118,6 +118,8 @@ data "template_file" "task_def_web" {
     show_saml_errors  = "${var.show_saml_errors}"
     subdomain         = "${var.subdomain}"
   }
+
+  depends_on = ["module.memcache"]
 }
 
 /*
