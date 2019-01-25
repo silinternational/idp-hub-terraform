@@ -70,17 +70,31 @@ module "ecs-service-cloudwatch-dashboard" {
 }
 
 /*
- * Create Memcache cluster for session handling
+ * Create Elasticache subnet group
  */
-module "memcache" {
-  source             = "github.com/silinternational/terraform-modules//aws/elasticache/memcache?ref=2.2.0"
-  cluster_id         = "${var.app_name}-${data.terraform_remote_state.common.app_env}"
-  security_group_ids = ["${data.terraform_remote_state.common.vpc_default_sg_id}"]
-  subnet_group_name  = "${var.app_name}-${data.terraform_remote_state.common.app_env}"
-  subnet_ids         = ["${data.terraform_remote_state.common.private_subnet_ids}"]
-  availability_zones = ["${data.terraform_remote_state.common.aws_zones}"]
-  app_name           = "${var.app_name}"
-  app_env            = "${data.terraform_remote_state.common.app_env}"
+resource "aws_elasticache_subnet_group" "memcache_subnet_group" {
+  name       = "${var.app_name}-${data.terraform_remote_state.common.app_env}"
+  subnet_ids = ["${data.terraform_remote_state.common.private_subnet_ids}"]
+}
+
+/*
+ * Create Cluster
+ */
+resource "aws_elasticache_cluster" "memcache" {
+  cluster_id           = "${replace("${var.cluster_id}", "/(.{0,20})(.*)/", "$1")}"
+  engine               = "memcached"
+  node_type            = "${var.memcache_node_type}"
+  port                 = "${var.memcache_port}"
+  num_cache_nodes      = "${var.memcache_num_cache_nodes}"
+  parameter_group_name = "${var.memcache_parameter_group_name}"
+  security_group_ids   = ["${data.terraform_remote_state.common.vpc_default_sg_id}"]
+  subnet_group_name    = "${aws_elasticache_subnet_group.memcache_subnet_group.name}"
+  az_mode              = "${var.memcache_az_mode}"
+
+  tags {
+    "app_name" = "${var.app_name}"
+    "app_env"  = "${data.terraform_remote_state.common.app_env}"
+  }
 }
 
 /*
@@ -111,8 +125,8 @@ data "template_file" "task_def_web" {
     idp_display_name  = "${var.idp_display_name}"
     idp_name          = "${var.idp_name}"
     logentries_key    = "${logentries_log.log.token}"
-    memcache_host1    = "${length(module.memcache.cache_nodes) > 0 ? element(module.memcache.cache_nodes.*.address, 0) : ""}"
-    memcache_host2    = "${length(module.memcache.cache_nodes) > 1 ? element(module.memcache.cache_nodes.*.address, 1) : ""}"
+    memcache_host1    = "${aws_elasticache_cluster.memcache.cache_nodes.0.address}"
+    memcache_host2    = "${aws_elasticache_cluster.memcache.cache_nodes.1.address}"
     memory            = "${var.memory}"
     secret_salt       = "${random_id.ssp_secret_salt.hex}"
     show_saml_errors  = "${var.show_saml_errors}"
