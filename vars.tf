@@ -33,6 +33,11 @@ variable "create_dns_entry" {
   default     = 1
 }
 
+variable "create_ecs_service" {
+  description = "Set to 1 to create ECS Service, 0 to not create service"
+  default     = 1
+}
+
 variable "desired_count" {
   default = 2
 }
