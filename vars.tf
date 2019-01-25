@@ -61,7 +61,7 @@ variable "memcache_num_cache_nodes" {
 
 variable "memcache_parameter_group_name" {
   type    = "string"
-  default = "default.memcached1.4"
+  default = "default.memcached1.5"
 }
 
 variable "memcache_port" {
