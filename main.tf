@@ -118,6 +118,7 @@ data "template_file" "task_def_hub" {
     admin_email       = "${var.admin_email}"
     admin_name        = "${var.admin_name}"
     admin_pass        = "${random_id.ssp_admin_pass.hex}"
+    analytics_id      = "${var.analytics_id}"
     cloudflare_domain = "${var.cloudflare_domain}"
     cpu               = "${var.cpu}"
     docker_image      = "${module.ecr.repo_url}"
