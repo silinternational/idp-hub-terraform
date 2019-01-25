@@ -111,8 +111,8 @@ resource "random_id" "ssp_secret_salt" {
 /*
  * Create task definition template
  */
-data "template_file" "task_def_web" {
-  template = "${file("${path.module}/task-def-web.json")}"
+data "template_file" "task_def_hub" {
+  template = "${file("${path.module}/task-def-hub.json")}"
 
   vars {
     admin_email       = "${var.admin_email}"
@@ -132,8 +132,6 @@ data "template_file" "task_def_web" {
     show_saml_errors  = "${var.show_saml_errors}"
     subdomain         = "${var.subdomain}"
   }
-
-  depends_on = ["module.memcache"]
 }
 
 /*
@@ -144,7 +142,7 @@ module "ecs" {
   cluster_id         = "${data.terraform_remote_state.common.ecs_cluster_id}"
   service_name       = "${var.app_name}"
   service_env        = "${data.terraform_remote_state.common.app_env}"
-  container_def_json = "${data.template_file.task_def_web.rendered}"
+  container_def_json = "${data.template_file.task_def_hub.rendered}"
   desired_count      = "${var.desired_count}"
   tg_arn             = "${aws_alb_target_group.tg.arn}"
   lb_container_name  = "hub"
