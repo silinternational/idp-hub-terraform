@@ -99,7 +99,6 @@ resource "random_id" "ssp_secret_salt" {
  */
 data "template_file" "task_def_web" {
   template = "${file("${path.module}/task-def-web.json")}"
-  count    = "${var.create_ecs_service}"
 
   vars {
     admin_email       = "${var.admin_email}"
@@ -112,8 +111,8 @@ data "template_file" "task_def_web" {
     idp_display_name  = "${var.idp_display_name}"
     idp_name          = "${var.idp_name}"
     logentries_key    = "${logentries_log.log.token}"
-    memcache_host1    = "${module.memcache.cache_nodes.0.address}"
-    memcache_host2    = "${module.memcache.cache_nodes.1.address}"
+    memcache_host1    = "${length(module.memcache.cache_nodes) > 0 ? element(module.memcache.cache_nodes.*.address, 0) : ""}"
+    memcache_host2    = "${length(module.memcache.cache_nodes) > 1 ? element(module.memcache.cache_nodes.*.address, 1) : ""}"
     memory            = "${var.memory}"
     secret_salt       = "${random_id.ssp_secret_salt.hex}"
     show_saml_errors  = "${var.show_saml_errors}"
@@ -127,7 +126,6 @@ data "template_file" "task_def_web" {
  * Create new ecs service
  */
 module "ecs" {
-  count              = "${var.create_ecs_service}"
   source             = "github.com/silinternational/terraform-modules//aws/ecs/service-only?ref=2.2.0"
   cluster_id         = "${data.terraform_remote_state.common.ecs_cluster_id}"
   service_name       = "${var.app_name}"
