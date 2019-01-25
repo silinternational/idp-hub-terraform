@@ -28,6 +28,11 @@ variable "cpu" {
   default = "128"
 }
 
+variable "create_dns_entry" {
+  description = "Set to 1 to create Cloudflare entry, 0 to not create entry"
+  default     = 1
+}
+
 variable "desired_count" {
   default = 2
 }

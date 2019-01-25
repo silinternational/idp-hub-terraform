@@ -140,6 +140,7 @@ module "ecs" {
  * Create Cloudflare DNS record
  */
 resource "cloudflare_record" "dns" {
+  count   = "${var.create_dns_entry}"
   domain  = "${var.cloudflare_domain}"
   name    = "${var.subdomain}"
   value   = "${data.terraform_remote_state.common.alb_dns_name}"
