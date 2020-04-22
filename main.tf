@@ -19,6 +19,19 @@ resource "logentries_log" "log" {
 }
 
 /*
+ * Create Cloudwatch log group
+ */
+resource "aws_cloudwatch_log_group" "logs" {
+  name              = "${var.app_name}-${data.terraform_remote_state.common.app_env}"
+  retention_in_days = 30
+
+  tags {
+    idp_name = "${var.idp_name}"
+    app_env  = "${data.terraform_remote_state.common.app_env}"
+  }
+}
+
+/*
  * Create target group for ALB
  */
 resource "aws_alb_target_group" "tg" {
@@ -115,24 +128,28 @@ data "template_file" "task_def_hub" {
   template = "${file("${path.module}/task-def-hub.json")}"
 
   vars {
-    admin_email        = "${var.admin_email}"
-    admin_name         = "${var.admin_name}"
-    admin_pass         = "${random_id.ssp_admin_pass.hex}"
-    analytics_id       = "${var.analytics_id}"
-    cloudflare_domain  = "${var.cloudflare_domain}"
-    cpu                = "${var.cpu}"
-    docker_image       = "${module.ecr.repo_url}"
-    docker_tag         = "${var.docker_tag}"
-    idp_display_name   = "${var.idp_display_name}"
-    idp_name           = "${var.idp_name}"
-    logentries_key     = "${logentries_log.log.token}"
-    memcache_host1     = "${aws_elasticache_cluster.memcache.cache_nodes.0.address}"
-    memcache_host2     = "${aws_elasticache_cluster.memcache.cache_nodes.1.address}"
-    memory             = "${var.memory}"
-    secret_salt        = "${random_id.ssp_secret_salt.hex}"
-    session_store_type = "${var.session_store_type}"
-    show_saml_errors   = "${var.show_saml_errors}"
-    subdomain          = "${var.subdomain}"
+    admin_email               = "${var.admin_email}"
+    admin_name                = "${var.admin_name}"
+    admin_pass                = "${random_id.ssp_admin_pass.hex}"
+    analytics_id              = "${var.analytics_id}"
+    app_env                   = "${data.terraform_remote_state.common.app_env}"
+    app_name                  = "${var.app_name}"
+    aws_region                = "${var.aws_region}"
+    cloudwatch_log_group_name = "${aws_cloudwatch_log_group.logs.name}"
+    cloudflare_domain         = "${var.cloudflare_domain}"
+    cpu                       = "${var.cpu}"
+    docker_image              = "${module.ecr.repo_url}"
+    docker_tag                = "${var.docker_tag}"
+    idp_display_name          = "${var.idp_display_name}"
+    idp_name                  = "${var.idp_name}"
+    logentries_key            = "${logentries_log.log.token}"
+    memcache_host1            = "${aws_elasticache_cluster.memcache.cache_nodes.0.address}"
+    memcache_host2            = "${aws_elasticache_cluster.memcache.cache_nodes.1.address}"
+    memory                    = "${var.memory}"
+    secret_salt               = "${random_id.ssp_secret_salt.hex}"
+    session_store_type        = "${var.session_store_type}"
+    show_saml_errors          = "${var.show_saml_errors}"
+    subdomain                 = "${var.subdomain}"
   }
 }
 
