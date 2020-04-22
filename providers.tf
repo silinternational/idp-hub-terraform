@@ -5,8 +5,9 @@ provider "aws" {
 }
 
 provider "cloudflare" {
+  version = "~> 1.0"
   email = "${var.cloudflare_email}"
-  api_token = "${var.cloudflare_token}"
+  token = "${var.cloudflare_token}"
 }
 
 provider "logentries" {
