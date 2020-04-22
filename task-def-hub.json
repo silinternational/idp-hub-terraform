@@ -4,7 +4,7 @@
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {
-        "awslogs-group": "${aws_cloudwatch_log_group.logs.name}",
+        "awslogs-group": "${cloudwatch_log_group_name}",
         "awslogs-region": "${aws_region}",
         "awslogs-stream-prefix": "${app_name}-${data.terraform_remote_state.common.app_env}"
       }
