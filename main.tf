@@ -19,6 +19,19 @@ resource "logentries_log" "log" {
 }
 
 /*
+ * Create Cloudwatch log group
+ */
+resource "aws_cloudwatch_log_group" "logs" {
+  name              = "${var.app_name}-${data.terraform_remote_state.common.app_env}"
+  retention_in_days = 30
+
+  tags {
+    idp_name = "${var.idp_name}"
+    app_env  = "${data.terraform_remote_state.common.app_env}"
+  }
+}
+
+/*
  * Create target group for ALB
  */
 resource "aws_alb_target_group" "tg" {
