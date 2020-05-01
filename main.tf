@@ -10,15 +10,6 @@ module "ecr" {
 }
 
 /*
- * Create Logentries log
- */
-resource "logentries_log" "log" {
-  logset_id = "${data.terraform_remote_state.common.logentries_set_id}"
-  name      = "${var.app_name}"
-  source    = "token"
-}
-
-/*
  * Create Cloudwatch log group
  */
 resource "aws_cloudwatch_log_group" "logs" {
@@ -142,7 +133,6 @@ data "template_file" "task_def_hub" {
     docker_tag                = "${var.docker_tag}"
     idp_display_name          = "${var.idp_display_name}"
     idp_name                  = "${var.idp_name}"
-    logentries_key            = "${logentries_log.log.token}"
     memcache_host1            = "${aws_elasticache_cluster.memcache.cache_nodes.0.address}"
     memcache_host2            = "${aws_elasticache_cluster.memcache.cache_nodes.1.address}"
     memory                    = "${var.memory}"
