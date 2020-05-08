@@ -28,6 +28,11 @@ variable "cpu" {
   default = "128"
 }
 
+variable "create_dns_entry" {
+  description = "Set to 1 to create Cloudflare entry, 0 to not create entry"
+  default     = 1
+}
+
 variable "desired_count" {
   default = 2
 }
@@ -39,6 +44,30 @@ variable "docker_tag" {
 variable "idp_display_name" {}
 variable "idp_name" {}
 variable "logentries_account_key" {}
+
+variable "memcache_az_mode" {
+  type    = "string"
+  default = "cross-az"
+}
+
+variable "memcache_node_type" {
+  default = "cache.t2.micro"
+}
+
+variable "memcache_num_cache_nodes" {
+  type    = "string"
+  default = 2
+}
+
+variable "memcache_parameter_group_name" {
+  type    = "string"
+  default = "default.memcached1.5"
+}
+
+variable "memcache_port" {
+  type    = "string"
+  default = "11211"
+}
 
 variable "memory" {
   default = "128"

@@ -1,7 +1,14 @@
 [
   {
     "dnsSearchDomains": null,
-    "logConfiguration": null,
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${cloudwatch_log_group_name}",
+        "awslogs-region": "${aws_region}",
+        "awslogs-stream-prefix": "${app_name}-${app_env}"
+      }
+    },
     "entryPoint": null,
     "portMappings": [
       {
@@ -49,10 +56,6 @@
       {
         "name": "IDP_NAME",
         "value": "${idp_name}"
-      },
-      {
-        "name": "LOGENTRIES_KEY",
-        "value": "${logentries_key}"
       },
       {
         "name": "MEMCACHE_HOST1",

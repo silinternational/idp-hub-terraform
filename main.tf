@@ -10,12 +10,16 @@ module "ecr" {
 }
 
 /*
- * Create Logentries log
+ * Create Cloudwatch log group
  */
-resource "logentries_log" "log" {
-  logset_id = "${data.terraform_remote_state.common.logentries_set_id}"
-  name      = "${var.app_name}"
-  source    = "token"
+resource "aws_cloudwatch_log_group" "logs" {
+  name              = "${var.app_name}-${data.terraform_remote_state.common.app_env}"
+  retention_in_days = 30
+
+  tags {
+    idp_name = "${var.idp_name}"
+    app_env  = "${data.terraform_remote_state.common.app_env}"
+  }
 }
 
 /*
@@ -70,17 +74,31 @@ module "ecs-service-cloudwatch-dashboard" {
 }
 
 /*
- * Create Memcache cluster for session handling
+ * Create Elasticache subnet group
  */
-module "memcache" {
-  source             = "github.com/silinternational/terraform-modules//aws/elasticache/memcache?ref=2.2.0"
-  cluster_id         = "${var.app_name}-${data.terraform_remote_state.common.app_env}"
-  security_group_ids = ["${data.terraform_remote_state.common.vpc_default_sg_id}"]
-  subnet_group_name  = "${var.app_name}-${data.terraform_remote_state.common.app_env}"
-  subnet_ids         = ["${data.terraform_remote_state.common.private_subnet_ids}"]
-  availability_zones = ["${data.terraform_remote_state.common.aws_zones}"]
-  app_name           = "${var.app_name}"
-  app_env            = "${data.terraform_remote_state.common.app_env}"
+resource "aws_elasticache_subnet_group" "memcache_subnet_group" {
+  name       = "${var.app_name}-${data.terraform_remote_state.common.app_env}"
+  subnet_ids = ["${data.terraform_remote_state.common.private_subnet_ids}"]
+}
+
+/*
+ * Create Cluster
+ */
+resource "aws_elasticache_cluster" "memcache" {
+  cluster_id           = "${var.app_name}-${data.terraform_remote_state.common.app_env}"
+  engine               = "memcached"
+  node_type            = "${var.memcache_node_type}"
+  port                 = "${var.memcache_port}"
+  num_cache_nodes      = "${var.memcache_num_cache_nodes}"
+  parameter_group_name = "${var.memcache_parameter_group_name}"
+  security_group_ids   = ["${data.terraform_remote_state.common.vpc_default_sg_id}"]
+  subnet_group_name    = "${aws_elasticache_subnet_group.memcache_subnet_group.name}"
+  az_mode              = "${var.memcache_az_mode}"
+
+  tags {
+    "app_name" = "${var.app_name}"
+    "app_env"  = "${data.terraform_remote_state.common.app_env}"
+  }
 }
 
 /*
@@ -97,26 +115,31 @@ resource "random_id" "ssp_secret_salt" {
 /*
  * Create task definition template
  */
-data "template_file" "task_def_web" {
-  template = "${file("${path.module}/task-def-web.json")}"
+data "template_file" "task_def_hub" {
+  template = "${file("${path.module}/task-def-hub.json")}"
 
   vars {
-    admin_email       = "${var.admin_email}"
-    admin_name        = "${var.admin_name}"
-    admin_pass        = "${random_id.ssp_admin_pass.hex}"
-    cloudflare_domain = "${var.cloudflare_domain}"
-    cpu               = "${var.cpu}"
-    docker_image      = "${module.ecr.repo_url}"
-    docker_tag        = "${var.docker_tag}"
-    idp_display_name  = "${var.idp_display_name}"
-    idp_name          = "${var.idp_name}"
-    logentries_key    = "${logentries_log.log.token}"
-    memcache_host1    = "${module.memcache.cache_nodes.0.address}"
-    memcache_host2    = "${module.memcache.cache_nodes.1.address}"
-    memory            = "${var.memory}"
-    secret_salt       = "${random_id.ssp_secret_salt.hex}"
-    show_saml_errors  = "${var.show_saml_errors}"
-    subdomain         = "${var.subdomain}"
+    admin_email               = "${var.admin_email}"
+    admin_name                = "${var.admin_name}"
+    admin_pass                = "${random_id.ssp_admin_pass.hex}"
+    analytics_id              = "${var.analytics_id}"
+    app_env                   = "${data.terraform_remote_state.common.app_env}"
+    app_name                  = "${var.app_name}"
+    aws_region                = "${var.aws_region}"
+    cloudwatch_log_group_name = "${aws_cloudwatch_log_group.logs.name}"
+    cloudflare_domain         = "${var.cloudflare_domain}"
+    cpu                       = "${var.cpu}"
+    docker_image              = "${module.ecr.repo_url}"
+    docker_tag                = "${var.docker_tag}"
+    idp_display_name          = "${var.idp_display_name}"
+    idp_name                  = "${var.idp_name}"
+    memcache_host1            = "${aws_elasticache_cluster.memcache.cache_nodes.0.address}"
+    memcache_host2            = "${aws_elasticache_cluster.memcache.cache_nodes.1.address}"
+    memory                    = "${var.memory}"
+    secret_salt               = "${random_id.ssp_secret_salt.hex}"
+    session_store_type        = "${var.session_store_type}"
+    show_saml_errors          = "${var.show_saml_errors}"
+    subdomain                 = "${var.subdomain}"
   }
 }
 
@@ -128,7 +151,7 @@ module "ecs" {
   cluster_id         = "${data.terraform_remote_state.common.ecs_cluster_id}"
   service_name       = "${var.app_name}"
   service_env        = "${data.terraform_remote_state.common.app_env}"
-  container_def_json = "${data.template_file.task_def_web.rendered}"
+  container_def_json = "${data.template_file.task_def_hub.rendered}"
   desired_count      = "${var.desired_count}"
   tg_arn             = "${aws_alb_target_group.tg.arn}"
   lb_container_name  = "hub"
@@ -140,6 +163,7 @@ module "ecs" {
  * Create Cloudflare DNS record
  */
 resource "cloudflare_record" "dns" {
+  count   = "${var.create_dns_entry}"
   domain  = "${var.cloudflare_domain}"
   name    = "${var.subdomain}"
   value   = "${data.terraform_remote_state.common.alb_dns_name}"
