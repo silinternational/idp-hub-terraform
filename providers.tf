@@ -18,3 +18,7 @@ provider "random" {
 provider "template" {
   version = "~> 2.2"
 }
+
+provider "null" {
+  version = "~> 3.0"
+}

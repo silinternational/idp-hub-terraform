@@ -174,3 +174,9 @@ resource "cloudflare_record" "dns" {
   type    = "CNAME"
   proxied = true
 }
+
+resource "null_resource" "force_apply" {
+  triggers = {
+    time = timestamp()
+  }
+}
