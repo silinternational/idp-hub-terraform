@@ -6,23 +6,31 @@ variable "admin_name" {
   default = "Insite Admin"
 }
 
-variable "analytics_id" {}
+variable "analytics_id" {
+}
 
 variable "app_name" {
   default = "idp-hub"
 }
 
-variable "aws_access_key" {}
+variable "aws_access_key" {
+}
 
 variable "aws_region" {
   default = "us-east-1"
 }
 
-variable "aws_secret_key" {}
+variable "aws_secret_key" {
+}
 
-variable "cloudflare_domain" {}
-variable "cloudflare_email" {}
-variable "cloudflare_token" {}
+variable "cloudflare_domain" {
+}
+
+variable "cloudflare_email" {
+}
+
+variable "cloudflare_token" {
+}
 
 variable "cpu" {
   default = "128"
@@ -41,11 +49,14 @@ variable "docker_tag" {
   default = "latest"
 }
 
-variable "idp_display_name" {}
-variable "idp_name" {}
+variable "idp_display_name" {
+}
+
+variable "idp_name" {
+}
 
 variable "memcache_az_mode" {
-  type    = "string"
+  type    = string
   default = "cross-az"
 }
 
@@ -54,17 +65,17 @@ variable "memcache_node_type" {
 }
 
 variable "memcache_num_cache_nodes" {
-  type    = "string"
+  type    = string
   default = 2
 }
 
 variable "memcache_parameter_group_name" {
-  type    = "string"
+  type    = string
   default = "default.memcached1.5"
 }
 
 variable "memcache_port" {
-  type    = "string"
+  type    = string
   default = "11211"
 }
 
@@ -80,5 +91,9 @@ variable "show_saml_errors" {
   default = "false"
 }
 
-variable "subdomain" {}
-variable "tf_remote_common" {}
+variable "subdomain" {
+}
+
+variable "tf_remote_common" {
+}
+
