@@ -43,7 +43,6 @@ variable "docker_tag" {
 
 variable "idp_display_name" {}
 variable "idp_name" {}
-variable "logentries_account_key" {}
 
 variable "memcache_az_mode" {
   type    = "string"
