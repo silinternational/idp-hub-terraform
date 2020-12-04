@@ -68,8 +68,8 @@ resource "aws_alb_listener_rule" "tg" {
  *  Create cloudwatch dashboard for service
  */
 module "ecs-service-cloudwatch-dashboard" {
-  source  = "silinternational/ecs-service-cloudwatch-dashboard/aws?ref=2.0.0"
-  version = "~> 1.0.0"
+  source  = "silinternational/ecs-service-cloudwatch-dashboard/aws"
+  version = "~> 2.0.0"
 
   cluster_name   = data.terraform_remote_state.common.outputs.ecs_cluster_name
   dashboard_name = "${var.app_name}-${data.terraform_remote_state.common.outputs.app_env}"
