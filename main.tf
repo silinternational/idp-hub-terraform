@@ -2,7 +2,7 @@
  * Create ECR repo
  */
 module "ecr" {
-  source              = "github.com/silinternational/terraform-modules//aws/ecr?ref=2.2.0"
+  source              = "github.com/silinternational/terraform-modules//aws/ecr?ref=3.5.0"
   repo_name           = "${var.app_name}-${data.terraform_remote_state.common.outputs.app_env}"
   ecsInstanceRole_arn = data.terraform_remote_state.common.outputs.ecsInstanceRole_arn
   ecsServiceRole_arn  = data.terraform_remote_state.common.outputs.ecsServiceRole_arn
@@ -68,7 +68,7 @@ resource "aws_alb_listener_rule" "tg" {
  *  Create cloudwatch dashboard for service
  */
 module "ecs-service-cloudwatch-dashboard" {
-  source  = "silinternational/ecs-service-cloudwatch-dashboard/aws"
+  source  = "silinternational/ecs-service-cloudwatch-dashboard/aws?ref=2.0.0"
   version = "~> 1.0.0"
 
   cluster_name   = data.terraform_remote_state.common.outputs.ecs_cluster_name
@@ -151,7 +151,7 @@ data "template_file" "task_def_hub" {
  * Create new ecs service
  */
 module "ecs" {
-  source             = "github.com/silinternational/terraform-modules//aws/ecs/service-only?ref=2.2.0"
+  source             = "github.com/silinternational/terraform-modules//aws/ecs/service-only?ref=3.5.0"
   cluster_id         = data.terraform_remote_state.common.outputs.ecs_cluster_id
   service_name       = var.app_name
   service_env        = data.terraform_remote_state.common.outputs.app_env
