@@ -81,7 +81,7 @@ module "ecs-service-cloudwatch-dashboard" {
  * Create Elasticache subnet group
  */
 resource "aws_elasticache_subnet_group" "memcache_subnet_group" {
-  name = "${var.app_name}-${data.terraform_remote_state.common.outputs.app_env}"
+  name       = "${var.app_name}-${data.terraform_remote_state.common.outputs.app_env}"
   subnet_ids = data.terraform_remote_state.common.outputs.private_subnet_ids
 }
 
@@ -95,9 +95,9 @@ resource "aws_elasticache_cluster" "memcache" {
   port                 = var.memcache_port
   num_cache_nodes      = var.memcache_num_cache_nodes
   parameter_group_name = var.memcache_parameter_group_name
-  security_group_ids = [data.terraform_remote_state.common.outputs.vpc_default_sg_id]
-  subnet_group_name  = aws_elasticache_subnet_group.memcache_subnet_group.name
-  az_mode            = var.memcache_az_mode
+  security_group_ids   = [data.terraform_remote_state.common.outputs.vpc_default_sg_id]
+  subnet_group_name    = aws_elasticache_subnet_group.memcache_subnet_group.name
+  az_mode              = var.memcache_az_mode
 
   tags = {
     "app_name" = var.app_name
@@ -168,11 +168,19 @@ module "ecs" {
  */
 resource "cloudflare_record" "dns" {
   count   = var.create_dns_entry
-  domain  = var.cloudflare_domain
+  zone_id = data.cloudflare_zones.domain.zones[0].id
   name    = var.subdomain
   value   = data.terraform_remote_state.common.outputs.alb_dns_name
   type    = "CNAME"
   proxied = true
+}
+
+data "cloudflare_zones" "domain" {
+  filter {
+    name        = var.cloudflare_domain
+    lookup_type = "exact"
+    status      = "active"
+  }
 }
 
 resource "null_resource" "force_apply" {
