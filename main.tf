@@ -135,6 +135,7 @@ data "template_file" "task_def_hub" {
     cpu                       = var.cpu
     docker_image              = module.ecr.repo_url
     docker_tag                = var.docker_tag
+    help_center_url           = var.help_center_url
     idp_display_name          = var.idp_display_name
     idp_name                  = var.idp_name
     memcache_host1            = aws_elasticache_cluster.memcache.cache_nodes[0].address

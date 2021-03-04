@@ -46,6 +46,10 @@
         "value": "true"
       },
       {
+        "name": "HELP_CENTER_URL",
+        "value": "${help_center_url}"
+      },
+      {
         "name": "HUB_MODE",
         "value": "true"
       },

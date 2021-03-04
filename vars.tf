@@ -61,6 +61,12 @@ variable "docker_tag" {
   default = "latest"
 }
 
+variable "help_center_url" {
+  description = "Appears at the top of the IDP selection page"
+  type = string
+  default = ""
+}
+
 variable "idp_display_name" {
 }
 
