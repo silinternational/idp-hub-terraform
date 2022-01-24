@@ -104,9 +104,5 @@ variable "show_saml_errors" {
 variable "subdomain" {
 }
 
-variable "tf_remote_organization" {
+variable "tf_remote_common" {
 }
-
-variable "tf_remote_name" {
-}
-
