@@ -31,11 +31,6 @@ variable "cloudflare_token" {
   default     = ""
 }
 
-variable "cloudflare_api_key" {
-  description = "The Cloudflare API key. Required if the API token is not provided."
-  default     = ""
-}
-
 variable "cpu" {
   default = "128"
 }
