@@ -26,16 +26,8 @@ variable "aws_secret_key" {
 variable "cloudflare_domain" {
 }
 
-variable "cloudflare_account_id" {
-}
-
-variable "cloudflare_email" {
-  description = "The email associated with the Cloudflare account. Required if the API token is not provided."
-  default     = ""
-}
-
 variable "cloudflare_token" {
-  description = "The Cloudflare API token. This is an alternative to email+api_key. If both are specified, api_token will be used over email+api_key fields."
+  description = "The Cloudflare API token with permissions on `cloudflare_domain`."
   default     = ""
 }
 
@@ -63,8 +55,8 @@ variable "docker_tag" {
 
 variable "help_center_url" {
   description = "Appears at the top of the IDP selection page"
-  type = string
-  default = ""
+  type        = string
+  default     = ""
 }
 
 variable "idp_display_name" {
@@ -112,6 +104,9 @@ variable "show_saml_errors" {
 variable "subdomain" {
 }
 
-variable "tf_remote_common" {
+variable "tf_remote_organization" {
+}
+
+variable "tf_remote_name" {
 }
 
