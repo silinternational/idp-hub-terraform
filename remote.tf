@@ -1,7 +1,10 @@
 data "terraform_remote_state" "common" {
-  backend = "atlas"
+  backend = "remote"
 
   config = {
-    name = var.tf_remote_common
+    organization = split("/", var.tf_remote_common)[0]
+    workspaces = {
+      name = split("/", var.tf_remote_common)[1]
+    }
   }
 }
