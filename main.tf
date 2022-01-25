@@ -59,8 +59,9 @@ resource "aws_alb_listener_rule" "tg" {
   }
 
   condition {
-    field  = "host-header"
-    values = ["${var.subdomain}.${var.cloudflare_domain}"]
+    host_header {
+      values = ["${var.subdomain}.${var.cloudflare_domain}"]
+    }
   }
 }
 
@@ -181,11 +182,5 @@ data "cloudflare_zones" "domain" {
     name        = var.cloudflare_domain
     lookup_type = "exact"
     status      = "active"
-  }
-}
-
-resource "null_resource" "force_apply" {
-  triggers = {
-    time = timestamp()
   }
 }
