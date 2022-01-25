@@ -100,5 +100,5 @@ variable "subdomain" {
 }
 
 variable "tf_remote_common" {
- description = "Path to the Common remote, in `org/workspace` syntax.
+  description = "Path to the Common remote, in `org/workspace` syntax."
 }
