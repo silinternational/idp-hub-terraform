@@ -186,40 +186,6 @@ data "cloudflare_zones" "domain" {
 }
 
 
-/*
- * Create user for sildisco:LogUser to save data to DynamoDB
- */
-resource "aws_iam_user" "idp-hub" {
-  name = "idp-hub-${local.app_env}"
-}
-
-resource "aws_iam_access_key" "idp-hub-user" {
-  user = aws_iam_user.idp-hub.name
-}
-
-
-/*
- *  This is needed when an idp metadata entry includes the sildisco:LogUser authproc
- *  the dynamodb table name is included in the authproc's configuration
- */
-resource "aws_iam_user_policy" "hub_loguser" {
-  name = "IDP-Hub-Dynamodb"
-  user = aws_iam_user.idp-hub.name
-
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-        {
-            Effect = "Allow",
-            Action = [
-                "dynamodb:PutItem"
-            ],
-            Resource = "arn:aws:dynamodb:*:*:table/sildisco_*_user-log"
-        }
-    ]
-  })
-}
-
 locals {
   app_env = data.terraform_remote_state.common.outputs.app_env
 }
