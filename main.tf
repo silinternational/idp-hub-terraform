@@ -206,21 +206,18 @@ resource "aws_iam_user_policy" "hub_loguser" {
   name = "IDP-Hub-Dynamodb"
   user = aws_iam_user.idp-hub.name
 
-  policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
         {
-            "Effect": "Allow",
-            "Action": [
+            Effect = "Allow",
+            Action = [
                 "dynamodb:PutItem"
             ],
-            "Resource": "arn:aws:dynamodb:*:*:table/sildisco_*_user-log"
+            Resource = "arn:aws:dynamodb:*:*:table/sildisco_*_user-log"
         }
     ]
-}
-EOF
-
+  })
 }
 
 locals {
