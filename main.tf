@@ -190,7 +190,7 @@ data "cloudflare_zones" "domain" {
  * Create user for sildisco:LogUser to save data to DynamoDB
  */
 resource "aws_iam_user" "idp-hub" {
-  name = "idp-hub-${var.app_env}"
+  name = "idp-hub-${local.app_env}"
 }
 
 resource "aws_iam_access_key" "idp-hub-user" {
