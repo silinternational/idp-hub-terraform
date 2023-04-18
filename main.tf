@@ -79,6 +79,8 @@ resource "aws_alb_listener_rule" "tg" {
  *  Create cloudwatch dashboard for service
  */
 module "ecs-service-cloudwatch-dashboard" {
+  count = var.create_dashboard ? 1 : 0
+
   source  = "silinternational/ecs-service-cloudwatch-dashboard/aws"
   version = "~> 2.0.0"
 

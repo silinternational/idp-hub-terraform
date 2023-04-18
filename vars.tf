@@ -107,3 +107,9 @@ variable "customer" {
   description = "Customer name, used in AWS tags"
   type        = string
 }
+
+variable "create_dashboard" {
+  description = "Set to 1 to create a CloudWatch dashboard"
+  type        = bool
+  default     = true
+}
