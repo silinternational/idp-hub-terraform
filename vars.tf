@@ -102,3 +102,14 @@ variable "subdomain" {
 variable "tf_remote_common" {
   description = "Path to the Common remote, in `org/workspace` syntax."
 }
+
+variable "customer" {
+  description = "Customer name, used in AWS tags"
+  type        = string
+}
+
+variable "create_dashboard" {
+  description = "Set to true to create a CloudWatch dashboard"
+  type        = bool
+  default     = true
+}
