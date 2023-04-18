@@ -102,3 +102,8 @@ variable "subdomain" {
 variable "tf_remote_common" {
   description = "Path to the Common remote, in `org/workspace` syntax."
 }
+
+variable "customer" {
+  description = "Customer name, used in AWS tags"
+  type        = string
+}

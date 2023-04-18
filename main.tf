@@ -1,3 +1,10 @@
+locals {
+  app_name_and_env = "${var.app_name}-${local.app_env}"
+  app_env          = data.terraform_remote_state.common.outputs.app_env
+  app_environment  = data.terraform_remote_state.common.outputs.app_environment
+  name_tag_suffix  = "${var.app_name}-${var.customer}-${local.app_environment}"
+}
+
 /*
  * Create ECR repo
  */
