@@ -24,8 +24,7 @@ resource "aws_cloudwatch_log_group" "logs" {
   retention_in_days = 30
 
   tags = {
-    idp_name = var.idp_name
-    app_env  = data.terraform_remote_state.common.outputs.app_env
+    name = "cloudwatch_log_group-${local.name_tag_suffix}"
   }
 }
 
@@ -51,6 +50,10 @@ resource "aws_alb_target_group" "tg" {
     path    = "/"
     matcher = "302"
   }
+
+  tags = {
+    name = "alb_target_group-${local.name_tag_suffix}"
+  }
 }
 
 /*
@@ -69,6 +72,10 @@ resource "aws_alb_listener_rule" "tg" {
     host_header {
       values = ["${var.subdomain}.${var.cloudflare_domain}"]
     }
+  }
+
+  tags = {
+    name = "alb_listener_rule-${local.name_tag_suffix}"
   }
 }
 
@@ -91,6 +98,10 @@ module "ecs-service-cloudwatch-dashboard" {
 resource "aws_elasticache_subnet_group" "memcache_subnet_group" {
   name       = "${var.app_name}-${data.terraform_remote_state.common.outputs.app_env}"
   subnet_ids = data.terraform_remote_state.common.outputs.private_subnet_ids
+
+  tags = {
+    name = "elasticache_subnet_group-${local.name_tag_suffix}"
+  }
 }
 
 /*
@@ -107,9 +118,9 @@ resource "aws_elasticache_cluster" "memcache" {
   subnet_group_name    = aws_elasticache_subnet_group.memcache_subnet_group.name
   az_mode              = var.memcache_az_mode
 
+
   tags = {
-    "app_name" = var.app_name
-    "app_env"  = data.terraform_remote_state.common.outputs.app_env
+    name = "elasticache_cluster-${local.name_tag_suffix}"
   }
 }
 
