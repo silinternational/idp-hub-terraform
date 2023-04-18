@@ -198,3 +198,8 @@ data "cloudflare_zones" "domain" {
     status      = "active"
   }
 }
+
+
+locals {
+  app_env = data.terraform_remote_state.common.outputs.app_env
+}
