@@ -48,6 +48,16 @@ variable "docker_tag" {
   default = "latest"
 }
 
+variable "dynamo_access_key_id" {
+  description = "AWS credential for DynamoDB permissions for sildisco to log user logins"
+  default = ""
+}
+
+variable "dynamo_secret_access_key" {
+  description = "AWS credential for DynamoDB permissions for sildisco to log user logins"
+  default = ""
+}
+
 variable "help_center_url" {
   description = "Appears at the top of the IDP selection page"
   type        = string
