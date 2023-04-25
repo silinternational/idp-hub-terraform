@@ -1,9 +1,16 @@
+locals {
+  app_name_and_env = "${var.app_name}-${local.app_env}"
+  app_env          = data.terraform_remote_state.common.outputs.app_env
+  app_environment  = data.terraform_remote_state.common.outputs.app_environment
+  name_tag_suffix  = "${var.app_name}-${var.customer}-${local.app_environment}"
+}
+
 /*
  * Create ECR repo
  */
 module "ecr" {
   source              = "github.com/silinternational/terraform-modules//aws/ecr?ref=3.5.0"
-  repo_name           = "${var.app_name}-${local.app_env}"
+  repo_name           = local.app_name_and_env
   ecsInstanceRole_arn = data.terraform_remote_state.common.outputs.ecsInstanceRole_arn
   ecsServiceRole_arn  = data.terraform_remote_state.common.outputs.ecsServiceRole_arn
   cd_user_arn         = data.terraform_remote_state.common.outputs.codeship_arn
@@ -13,12 +20,11 @@ module "ecr" {
  * Create Cloudwatch log group
  */
 resource "aws_cloudwatch_log_group" "logs" {
-  name              = "${var.app_name}-${local.app_env}"
+  name              = local.app_name_and_env
   retention_in_days = 30
 
   tags = {
-    idp_name = var.idp_name
-    app_env  = local.app_env
+    name = "cloudwatch_log_group-${local.name_tag_suffix}"
   }
 }
 
@@ -26,11 +32,7 @@ resource "aws_cloudwatch_log_group" "logs" {
  * Create target group for ALB
  */
 resource "aws_alb_target_group" "tg" {
-  name = replace(
-    "tg-${var.app_name}-${local.app_env}",
-    "/(.{0,32})(.*)/",
-    "$1",
-  )
+  name                 = substr("tg-${local.app_name_and_env}", 0, 32)
   port                 = "80"
   protocol             = "HTTP"
   vpc_id               = data.terraform_remote_state.common.outputs.vpc_id
@@ -43,6 +45,10 @@ resource "aws_alb_target_group" "tg" {
   health_check {
     path    = "/"
     matcher = "302"
+  }
+
+  tags = {
+    name = "alb_target_group-${local.name_tag_suffix}"
   }
 }
 
@@ -63,17 +69,23 @@ resource "aws_alb_listener_rule" "tg" {
       values = ["${var.subdomain}.${var.cloudflare_domain}"]
     }
   }
+
+  tags = {
+    name = "alb_listener_rule-${local.name_tag_suffix}"
+  }
 }
 
 /*
  *  Create cloudwatch dashboard for service
  */
 module "ecs-service-cloudwatch-dashboard" {
+  count = var.create_dashboard ? 1 : 0
+
   source  = "silinternational/ecs-service-cloudwatch-dashboard/aws"
   version = "~> 2.0.0"
 
   cluster_name   = data.terraform_remote_state.common.outputs.ecs_cluster_name
-  dashboard_name = "${var.app_name}-${local.app_env}"
+  dashboard_name = local.app_name_and_env
   service_names  = [var.app_name]
   aws_region     = var.aws_region
 }
@@ -82,15 +94,19 @@ module "ecs-service-cloudwatch-dashboard" {
  * Create Elasticache subnet group
  */
 resource "aws_elasticache_subnet_group" "memcache_subnet_group" {
-  name       = "${var.app_name}-${local.app_env}"
+  name       = local.app_name_and_env
   subnet_ids = data.terraform_remote_state.common.outputs.private_subnet_ids
+
+  tags = {
+    name = "elasticache_subnet_group-${local.name_tag_suffix}"
+  }
 }
 
 /*
  * Create Cluster
  */
 resource "aws_elasticache_cluster" "memcache" {
-  cluster_id           = "${var.app_name}-${local.app_env}"
+  cluster_id           = local.app_name_and_env
   engine               = "memcached"
   node_type            = var.memcache_node_type
   port                 = var.memcache_port
@@ -100,9 +116,9 @@ resource "aws_elasticache_cluster" "memcache" {
   subnet_group_name    = aws_elasticache_subnet_group.memcache_subnet_group.name
   az_mode              = var.memcache_az_mode
 
+
   tags = {
-    "app_name" = var.app_name
-    "app_env"  = local.app_env
+    name = "elasticache_cluster-${local.name_tag_suffix}"
   }
 }
 
@@ -183,9 +199,4 @@ data "cloudflare_zones" "domain" {
     lookup_type = "exact"
     status      = "active"
   }
-}
-
-
-locals {
-  app_env = data.terraform_remote_state.common.outputs.app_env
 }
