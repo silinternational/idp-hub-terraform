@@ -142,7 +142,7 @@ data "template_file" "task_def_hub" {
   vars = {
     admin_email               = var.admin_email
     admin_name                = var.admin_name
-    admin_pass                = random_id.ssp_admin_pass.hex
+    admin_pass                = sensitive(random_id.ssp_admin_pass.hex)
     analytics_id              = var.analytics_id
     app_env                   = local.app_env
     app_name                  = var.app_name
