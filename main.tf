@@ -152,8 +152,8 @@ data "template_file" "task_def_hub" {
     cpu                       = var.cpu
     docker_image              = module.ecr.repo_url
     docker_tag                = var.docker_tag
-    dynamo_access_key_id      = var.dynamo_access_key_id
-    dynamo_secret_access_key  = var.dynamo_secret_access_key
+    dynamo_access_key_id      = aws_iam_access_key.user_login_logger.id
+    dynamo_secret_access_key  = aws_iam_access_key.user_login_logger.secret
     help_center_url           = var.help_center_url
     idp_display_name          = var.idp_display_name
     idp_name                  = var.idp_name
