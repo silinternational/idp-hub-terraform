@@ -13,3 +13,14 @@ output "ssp_secret_salt" {
 output "url" {
   value = "https://${var.subdomain}.${var.cloudflare_domain}"
 }
+
+/*
+ * IAM outputs
+ */
+output "dynamodb_access_key_id" {
+  value = aws_iam_access_key.user_login_logger.id
+}
+
+output "dynamodb_access_key_secret" {
+  value = aws_iam_access_key.user_login_logger.secret
+}
