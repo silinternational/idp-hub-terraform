@@ -200,9 +200,9 @@ resource "aws_iam_access_key" "user_login_logger" {
 /*
  * Allow user_login_logger user to write to Dynamodb
  */
-resource "aws_iam_role_policy" "dynamodb-logger-policy" {
+resource "aws_iam_user_policy" "dynamodb-logger-policy" {
    name = "dynamodb_user_login_logger_policy-${local.app_env}"
-   user = aws_iam_user.user_login_logger
+   user = aws_iam_user.user_login_logger.name
 
    policy = jsonencode({
       "Version" : "2012-10-17",
