@@ -152,6 +152,8 @@ data "template_file" "task_def_hub" {
     cpu                       = var.cpu
     docker_image              = module.ecr.repo_url
     docker_tag                = var.docker_tag
+    dynamo_access_key_id      = aws_iam_access_key.user_login_logger.id
+    dynamo_secret_access_key  = aws_iam_access_key.user_login_logger.secret
     help_center_url           = var.help_center_url
     idp_display_name          = var.idp_display_name
     idp_name                  = var.idp_name
@@ -179,6 +181,39 @@ module "ecs" {
   lb_container_name  = "hub"
   lb_container_port  = "80"
   ecsServiceRole_arn = data.terraform_remote_state.common.outputs.ecsServiceRole_arn
+}
+
+/*
+ * Create user for dynamo permissions
+ */
+resource "aws_iam_user" "user_login_logger" {
+  name = "idp_hub_user_login_logger-${local.app_env}"
+}
+
+/*
+ * Create key for dynamo permissions
+ */
+resource "aws_iam_access_key" "user_login_logger" {
+  user    = aws_iam_user.user_login_logger.name
+}
+
+/*
+ * Allow user_login_logger user to write to Dynamodb
+ */
+resource "aws_iam_user_policy" "dynamodb-logger-policy" {
+   name = "dynamodb_user_login_logger_policy-${local.app_env}"
+   user = aws_iam_user.user_login_logger.name
+
+   policy = jsonencode({
+      "Version" : "2012-10-17",
+      "Statement" : [
+        {
+           "Effect" : "Allow",
+           "Action" : ["dynamodb:PutItem"],
+           "Resource" : "arn:aws:dynamodb:*:*:table/sildisco_*_user-log"
+        }
+      ]
+   })
 }
 
 /*
