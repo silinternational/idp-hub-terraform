@@ -15,7 +15,7 @@ module "ecr" {
   ecsServiceRole_arn    = data.terraform_remote_state.common.outputs.ecsServiceRole_arn
   cd_user_arn           = data.terraform_remote_state.common.outputs.codeship_arn
   image_retention_count = 20
-  image_retention_tags = ["latest","develop"]
+  image_retention_tags  = ["latest","develop"]
 }
 
 /*
