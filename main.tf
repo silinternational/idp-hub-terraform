@@ -9,11 +9,13 @@ locals {
  * Create ECR repo
  */
 module "ecr" {
-  source              = "github.com/silinternational/terraform-modules//aws/ecr?ref=3.5.0"
-  repo_name           = local.app_name_and_env
-  ecsInstanceRole_arn = data.terraform_remote_state.common.outputs.ecsInstanceRole_arn
-  ecsServiceRole_arn  = data.terraform_remote_state.common.outputs.ecsServiceRole_arn
-  cd_user_arn         = data.terraform_remote_state.common.outputs.codeship_arn
+  source                = "github.com/silinternational/terraform-modules//aws/ecr?ref=8.0.1"
+  repo_name             = local.app_name_and_env
+  ecsInstanceRole_arn   = data.terraform_remote_state.common.outputs.ecsInstanceRole_arn
+  ecsServiceRole_arn    = data.terraform_remote_state.common.outputs.ecsServiceRole_arn
+  cd_user_arn           = data.terraform_remote_state.common.outputs.codeship_arn
+  image_retention_count = 20
+  image_retention_tags  = ["latest","develop"]
 }
 
 /*
@@ -171,7 +173,7 @@ data "template_file" "task_def_hub" {
  * Create new ecs service
  */
 module "ecs" {
-  source             = "github.com/silinternational/terraform-modules//aws/ecs/service-only?ref=3.5.0"
+  source             = "github.com/silinternational/terraform-modules//aws/ecs/service-only?ref=8.0.1"
   cluster_id         = data.terraform_remote_state.common.outputs.ecs_cluster_id
   service_name       = var.app_name
   service_env        = local.app_env
