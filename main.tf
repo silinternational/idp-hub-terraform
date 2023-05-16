@@ -15,7 +15,7 @@ module "ecr" {
   ecsServiceRole_arn    = data.terraform_remote_state.common.outputs.ecsServiceRole_arn
   cd_user_arn           = data.terraform_remote_state.common.outputs.codeship_arn
   image_retention_count = 20
-  image_retention_tags  = ["latest","develop"]
+  image_retention_tags  = ["latest", "develop"]
 }
 
 /*
@@ -196,26 +196,26 @@ resource "aws_iam_user" "user_login_logger" {
  * Create key for dynamo permissions
  */
 resource "aws_iam_access_key" "user_login_logger" {
-  user    = aws_iam_user.user_login_logger.name
+  user = aws_iam_user.user_login_logger.name
 }
 
 /*
  * Allow user_login_logger user to write to Dynamodb
  */
 resource "aws_iam_user_policy" "dynamodb-logger-policy" {
-   name = "dynamodb_user_login_logger_policy-${local.app_env}"
-   user = aws_iam_user.user_login_logger.name
+  name = "dynamodb_user_login_logger_policy-${local.app_env}"
+  user = aws_iam_user.user_login_logger.name
 
-   policy = jsonencode({
-      "Version" : "2012-10-17",
-      "Statement" : [
-        {
-           "Effect" : "Allow",
-           "Action" : ["dynamodb:PutItem"],
-           "Resource" : "arn:aws:dynamodb:*:*:table/sildisco_*_user-log"
-        }
-      ]
-   })
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Action" : ["dynamodb:PutItem"],
+        "Resource" : "arn:aws:dynamodb:*:*:table/sildisco_*_user-log"
+      }
+    ]
+  })
 }
 
 /*
