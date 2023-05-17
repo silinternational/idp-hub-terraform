@@ -46,6 +46,14 @@
         "value": "true"
       },
       {
+        "name": "DYNAMO_ACCESS_KEY_ID",
+        "value": "${dynamo_access_key_id}"
+      },
+      {
+        "name": "DYNAMO_SECRET_ACCESS_KEY",
+        "value": "${dynamo_secret_access_key}"
+      },
+      {
         "name": "HELP_CENTER_URL",
         "value": "${help_center_url}"
       },
