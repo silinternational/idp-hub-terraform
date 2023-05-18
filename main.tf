@@ -181,6 +181,7 @@ resource "random_id" "ssp_secret_salt" {
 locals {
   memcache_host1 = one(aws_elasticache_cluster.memcache[*].cache_nodes[0].address)
   memcache_host2 = one(aws_elasticache_cluster.memcache[*].cache_nodes[1].address)
+  mysql_host     = one(module.rds[*].address)
   mysql_password = one(random_password.db_root[*].result)
 }
 
@@ -211,7 +212,7 @@ data "template_file" "task_def_hub" {
     memcache_host1            = local.memcache_host1 == null ? "" : local.memcache_host1
     memcache_host2            = local.memcache_host2 == null ? "" : local.memcache_host2
     memory                    = var.memory
-    mysql_host                = one(module.rds[*].address)
+    mysql_host                = local.mysql_host == null ? "" : local.mysql_host
     mysql_database            = local.mysql_database
     mysql_user                = local.mysql_user
     mysql_password            = local.mysql_password == null ? "" : local.mysql_password
