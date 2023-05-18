@@ -143,7 +143,8 @@ resource "random_password" "db_root" {
  * Create RDS database for session store, if session_store_type is "sql"
  */
 module "rds" {
-  count = var.session_store_type == "sql" ? 1 : 0
+  count = 1
+  #  count = var.session_store_type == "sql" ? 1 : 0
 
   source = "github.com/silinternational/terraform-modules//aws/rds/mariadb?ref=8.0.1"
 
