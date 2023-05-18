@@ -156,7 +156,7 @@ module "rds" {
   security_groups   = [data.terraform_remote_state.common.outputs.vpc_default_sg_id]
 
   allocated_storage = 1 // 1 gibibyte
-  instance_class    = "t3.micro"
+  instance_class    = "db.t3.micro"
   multi_az          = true
   tags = {
     managed_by        = "terraform"
