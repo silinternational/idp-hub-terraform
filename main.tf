@@ -155,7 +155,7 @@ module "rds" {
   subnet_group_name = data.terraform_remote_state.common.outputs.db_subnet_group_name
   security_groups   = [data.terraform_remote_state.common.outputs.vpc_default_sg_id]
 
-  allocated_storage = 1 // 1 gibibyte
+  allocated_storage = 20 // 20 gibibyte
   instance_class    = "db.t3.micro"
   multi_az          = true
   tags = {
