@@ -178,6 +178,12 @@ resource "random_id" "ssp_secret_salt" {
   byte_length = 32
 }
 
+locals {
+  memcache_host1 = one(aws_elasticache_cluster.memcache[*].cache_nodes[0].address)
+  memcache_host2 = one(aws_elasticache_cluster.memcache[*].cache_nodes[1].address)
+  mysql_password = one(random_password.db_root[*].result)
+}
+
 /*
  * Create task definition template
  */
@@ -202,13 +208,13 @@ data "template_file" "task_def_hub" {
     help_center_url           = var.help_center_url
     idp_display_name          = var.idp_display_name
     idp_name                  = var.idp_name
-    memcache_host1            = one(aws_elasticache_cluster.memcache[*].cache_nodes[0].address)
-    memcache_host2            = one(aws_elasticache_cluster.memcache[*].cache_nodes[1].address)
+    memcache_host1            = local.memcache_host1 == null ? "" : local.memcache_host1
+    memcache_host2            = local.memcache_host2 == null ? "" : local.memcache_host2
     memory                    = var.memory
     mysql_host                = one(module.rds[*].address)
     mysql_database            = local.mysql_database
     mysql_user                = local.mysql_user
-    mysql_password            = one(random_password.db_root[*].result)
+    mysql_password            = local.mysql_password == null ? "" : local.mysql_password
     secret_salt               = random_id.ssp_secret_salt.hex
     session_store_type        = var.session_store_type
     show_saml_errors          = var.show_saml_errors
