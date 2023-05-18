@@ -134,7 +134,8 @@ resource "aws_elasticache_cluster" "memcache" {
  * Create RDS root password
  */
 resource "random_password" "db_root" {
-  count = var.session_store_type == "sql" ? 1 : 0
+  count = 1
+  #  count = var.session_store_type == "sql" ? 1 : 0
 
   length = 16
 }
