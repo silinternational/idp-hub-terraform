@@ -236,7 +236,7 @@ module "ecs" {
  * Create user for dynamo permissions
  */
 resource "aws_iam_user" "user_login_logger" {
-  name = "idp_hub_user_login_logger-${local.app_env}"
+  name = "idp_hub_user_login_logger-${local.app_env}-mr"
 }
 
 /*
