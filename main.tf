@@ -137,7 +137,8 @@ resource "random_password" "db_root" {
   count = 1
   #  count = var.session_store_type == "sql" ? 1 : 0
 
-  length = 16
+  length           = 16
+  override_special = "!#$%&*()-_=+[]{}<>:?"
 }
 
 /*
