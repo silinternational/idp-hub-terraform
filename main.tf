@@ -98,7 +98,8 @@ module "ecs-service-cloudwatch-dashboard" {
  * Create Elasticache subnet group
  */
 resource "aws_elasticache_subnet_group" "memcache_subnet_group" {
-  count = var.session_store_type == "memcache" ? 1 : 0
+  count = 1
+  #  count = var.session_store_type == "memcache" ? 1 : 0
 
   name       = local.app_name_and_env
   subnet_ids = data.terraform_remote_state.common.outputs.private_subnet_ids
@@ -112,7 +113,8 @@ resource "aws_elasticache_subnet_group" "memcache_subnet_group" {
  * Create Elasticache cluster
  */
 resource "aws_elasticache_cluster" "memcache" {
-  count = var.session_store_type == "memcache" ? 1 : 0
+  count = 1
+  #  count = var.session_store_type == "memcache" ? 1 : 0
 
   cluster_id           = local.app_name_and_env
   engine               = "memcached"
