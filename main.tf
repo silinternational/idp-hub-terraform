@@ -2,6 +2,8 @@ locals {
   app_name_and_env = "${var.app_name}-${local.app_env}"
   app_env          = data.terraform_remote_state.common.outputs.app_env
   app_environment  = data.terraform_remote_state.common.outputs.app_environment
+  mysql_database   = "session"
+  mysql_user       = "root"
   name_tag_suffix  = "${var.app_name}-${var.customer}-${local.app_environment}"
 }
 
@@ -15,7 +17,7 @@ module "ecr" {
   ecsServiceRole_arn    = data.terraform_remote_state.common.outputs.ecsServiceRole_arn
   cd_user_arn           = data.terraform_remote_state.common.outputs.codeship_arn
   image_retention_count = 20
-  image_retention_tags  = ["latest","develop"]
+  image_retention_tags  = ["latest", "develop"]
 }
 
 /*
@@ -96,6 +98,9 @@ module "ecs-service-cloudwatch-dashboard" {
  * Create Elasticache subnet group
  */
 resource "aws_elasticache_subnet_group" "memcache_subnet_group" {
+  count = 1
+  #  count = var.session_store_type == "memcache" ? 1 : 0
+
   name       = local.app_name_and_env
   subnet_ids = data.terraform_remote_state.common.outputs.private_subnet_ids
 
@@ -105,9 +110,12 @@ resource "aws_elasticache_subnet_group" "memcache_subnet_group" {
 }
 
 /*
- * Create Cluster
+ * Create Elasticache cluster
  */
 resource "aws_elasticache_cluster" "memcache" {
+  count = 1
+  #  count = var.session_store_type == "memcache" ? 1 : 0
+
   cluster_id           = local.app_name_and_env
   engine               = "memcached"
   node_type            = var.memcache_node_type
@@ -115,12 +123,52 @@ resource "aws_elasticache_cluster" "memcache" {
   num_cache_nodes      = var.memcache_num_cache_nodes
   parameter_group_name = var.memcache_parameter_group_name
   security_group_ids   = [data.terraform_remote_state.common.outputs.vpc_default_sg_id]
-  subnet_group_name    = aws_elasticache_subnet_group.memcache_subnet_group.name
+  subnet_group_name    = one(aws_elasticache_subnet_group.memcache_subnet_group[*].name)
   az_mode              = var.memcache_az_mode
 
 
   tags = {
     name = "elasticache_cluster-${local.name_tag_suffix}"
+  }
+}
+
+/*
+ * Create RDS root password
+ */
+resource "random_password" "db_root" {
+  count = 1
+  #  count = var.session_store_type == "sql" ? 1 : 0
+
+  length           = 16
+  override_special = "!#$%&*()-_=+[]{}<>:?"
+}
+
+/*
+ * Create RDS database for session store, if session_store_type is "sql"
+ */
+module "rds" {
+  count = 1
+  #  count = var.session_store_type == "sql" ? 1 : 0
+
+  source = "github.com/silinternational/terraform-modules//aws/rds/mariadb?ref=8.0.1"
+
+  app_name          = var.app_name
+  app_env           = local.app_env
+  db_name           = local.mysql_database
+  db_root_user      = local.mysql_user
+  db_root_pass      = one(random_password.db_root[*].result)
+  subnet_group_name = data.terraform_remote_state.common.outputs.db_subnet_group_name
+  security_groups   = [data.terraform_remote_state.common.outputs.vpc_default_sg_id]
+
+  allocated_storage = 20 // 20 gibibyte
+  instance_class    = "db.t3.micro"
+  multi_az          = true
+  tags = {
+    managed_by        = "terraform"
+    workspace         = terraform.workspace
+    itse_app_customer = var.customer
+    itse_app_env      = local.app_environment
+    itse_app_name     = "idp-hub"
   }
 }
 
@@ -133,6 +181,13 @@ resource "random_id" "ssp_admin_pass" {
 
 resource "random_id" "ssp_secret_salt" {
   byte_length = 32
+}
+
+locals {
+  memcache_host1 = one(aws_elasticache_cluster.memcache[*].cache_nodes[0].address)
+  memcache_host2 = one(aws_elasticache_cluster.memcache[*].cache_nodes[1].address)
+  mysql_host     = one(module.rds[*].address)
+  mysql_password = one(random_password.db_root[*].result)
 }
 
 /*
@@ -159,9 +214,13 @@ data "template_file" "task_def_hub" {
     help_center_url           = var.help_center_url
     idp_display_name          = var.idp_display_name
     idp_name                  = var.idp_name
-    memcache_host1            = aws_elasticache_cluster.memcache.cache_nodes[0].address
-    memcache_host2            = aws_elasticache_cluster.memcache.cache_nodes[1].address
+    memcache_host1            = local.memcache_host1 == null ? "" : local.memcache_host1
+    memcache_host2            = local.memcache_host2 == null ? "" : local.memcache_host2
     memory                    = var.memory
+    mysql_host                = local.mysql_host == null ? "" : local.mysql_host
+    mysql_database            = local.mysql_database
+    mysql_user                = local.mysql_user
+    mysql_password            = local.mysql_password == null ? "" : local.mysql_password
     secret_salt               = random_id.ssp_secret_salt.hex
     session_store_type        = var.session_store_type
     show_saml_errors          = var.show_saml_errors
@@ -196,26 +255,26 @@ resource "aws_iam_user" "user_login_logger" {
  * Create key for dynamo permissions
  */
 resource "aws_iam_access_key" "user_login_logger" {
-  user    = aws_iam_user.user_login_logger.name
+  user = aws_iam_user.user_login_logger.name
 }
 
 /*
  * Allow user_login_logger user to write to Dynamodb
  */
 resource "aws_iam_user_policy" "dynamodb-logger-policy" {
-   name = "dynamodb_user_login_logger_policy-${local.app_env}"
-   user = aws_iam_user.user_login_logger.name
+  name = "dynamodb_user_login_logger_policy-${local.app_env}"
+  user = aws_iam_user.user_login_logger.name
 
-   policy = jsonencode({
-      "Version" : "2012-10-17",
-      "Statement" : [
-        {
-           "Effect" : "Allow",
-           "Action" : ["dynamodb:PutItem"],
-           "Resource" : "arn:aws:dynamodb:*:*:table/sildisco_*_user-log"
-        }
-      ]
-   })
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Action" : ["dynamodb:PutItem"],
+        "Resource" : "arn:aws:dynamodb:*:*:table/sildisco_*_user-log"
+      }
+    ]
+  })
 }
 
 /*
