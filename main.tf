@@ -1,10 +1,59 @@
 locals {
   app_name_and_env = "${var.app_name}-${local.app_env}"
-  app_env          = data.terraform_remote_state.common.outputs.app_env
-  app_environment  = data.terraform_remote_state.common.outputs.app_environment
+  app_env          = var.app_env
+  app_environment  = var.app_environment
   mysql_database   = "session"
   mysql_user       = "root"
   name_tag_suffix  = "${var.app_name}-${var.customer}-${local.app_environment}"
+}
+
+
+/*
+ * IAM - Deployment Service User
+ */
+resource "aws_iam_user" "deploy" {
+  name = "${local.app_name_and_env}-deploy"
+}
+
+resource "aws_iam_access_key" "deploy" {
+  user = aws_iam_user.deploy.name
+}
+
+resource "aws_iam_user_policy" "deploy" {
+  name = "${local.app_name_and_env}-deploy"
+  user = aws_iam_user.deploy.name
+
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "ecs:DeregisterTaskDefinition",
+          "ecs:DescribeServices",
+          "ecs:DescribeTaskDefinition",
+          "ecs:DescribeTasks",
+          "ecs:ListTasks",
+          "ecs:ListTaskDefinitions",
+          "ecs:RegisterTaskDefinition",
+          "ecs:StartTask",
+          "ecs:StopTask",
+          "ecs:UpdateService",
+          "iam:PassRole"
+        ],
+        "Resource" : "*"
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "ecr:GetAuthorizationToken"
+        ],
+        "Resource" : [
+          "*"
+        ]
+      }
+    ]
+  })
 }
 
 /*
@@ -13,9 +62,9 @@ locals {
 module "ecr" {
   source                = "github.com/silinternational/terraform-modules//aws/ecr?ref=8.0.1"
   repo_name             = local.app_name_and_env
-  ecsInstanceRole_arn   = data.terraform_remote_state.common.outputs.ecsInstanceRole_arn
-  ecsServiceRole_arn    = data.terraform_remote_state.common.outputs.ecsServiceRole_arn
-  cd_user_arn           = data.terraform_remote_state.common.outputs.codeship_arn
+  ecsInstanceRole_arn   = module.ecsasg.ecsInstanceRole_arn
+  ecsServiceRole_arn    = module.ecsasg.ecsServiceRole_arn
+  cd_user_arn           = aws_iam_user.deploy.arn
   image_retention_count = 20
   image_retention_tags  = ["latest", "develop"]
 }
@@ -39,7 +88,7 @@ resource "aws_alb_target_group" "tg" {
   name                 = substr("tg-${local.app_name_and_env}", 0, 32)
   port                 = "80"
   protocol             = "HTTP"
-  vpc_id               = data.terraform_remote_state.common.outputs.vpc_id
+  vpc_id               = module.vpc.id
   deregistration_delay = "30"
 
   stickiness {
@@ -60,7 +109,7 @@ resource "aws_alb_target_group" "tg" {
  * Create listener rule for hostname routing to new target group
  */
 resource "aws_alb_listener_rule" "tg" {
-  listener_arn = data.terraform_remote_state.common.outputs.alb_https_listener_arn
+  listener_arn = module.alb.https_listener_arn
   priority     = "218"
 
   action {
@@ -88,7 +137,7 @@ module "ecs-service-cloudwatch-dashboard" {
   source  = "silinternational/ecs-service-cloudwatch-dashboard/aws"
   version = "~> 2.0.0"
 
-  cluster_name   = data.terraform_remote_state.common.outputs.ecs_cluster_name
+  cluster_name   = module.ecsasg.ecs_cluster_name
   dashboard_name = local.app_name_and_env
   service_names  = [var.app_name]
   aws_region     = var.aws_region
@@ -101,7 +150,7 @@ resource "aws_elasticache_subnet_group" "memcache_subnet_group" {
   count = var.session_store_type == "memcache" ? 1 : 0
 
   name       = local.app_name_and_env
-  subnet_ids = data.terraform_remote_state.common.outputs.private_subnet_ids
+  subnet_ids = module.vpc.private_subnet_ids
 
   tags = {
     name = "elasticache_subnet_group-${local.name_tag_suffix}"
@@ -120,7 +169,7 @@ resource "aws_elasticache_cluster" "memcache" {
   port                 = var.memcache_port
   num_cache_nodes      = var.memcache_num_cache_nodes
   parameter_group_name = var.memcache_parameter_group_name
-  security_group_ids   = [data.terraform_remote_state.common.outputs.vpc_default_sg_id]
+  security_group_ids   = [module.vpc.vpc_default_sg_id]
   subnet_group_name    = one(aws_elasticache_subnet_group.memcache_subnet_group[*].name)
   az_mode              = var.memcache_az_mode
 
@@ -152,8 +201,8 @@ module "rds" {
   db_name           = local.mysql_database
   db_root_user      = local.mysql_user
   db_root_pass      = one(random_password.db_root[*].result)
-  subnet_group_name = data.terraform_remote_state.common.outputs.db_subnet_group_name
-  security_groups   = [data.terraform_remote_state.common.outputs.vpc_default_sg_id]
+  subnet_group_name = module.vpc.db_subnet_group_name
+  security_groups   = [module.vpc.vpc_default_sg_id]
 
   allocated_storage = 20 // 20 gibibyte
   instance_class    = "db.t3.micro"
@@ -228,7 +277,7 @@ data "template_file" "task_def_hub" {
  */
 module "ecs" {
   source             = "github.com/silinternational/terraform-modules//aws/ecs/service-only?ref=8.0.1"
-  cluster_id         = data.terraform_remote_state.common.outputs.ecs_cluster_id
+  cluster_id         = module.ecsasg.ecs_cluster_id
   service_name       = var.app_name
   service_env        = local.app_env
   container_def_json = data.template_file.task_def_hub.rendered
@@ -236,7 +285,7 @@ module "ecs" {
   tg_arn             = aws_alb_target_group.tg.arn
   lb_container_name  = "hub"
   lb_container_port  = "80"
-  ecsServiceRole_arn = data.terraform_remote_state.common.outputs.ecsServiceRole_arn
+  ecsServiceRole_arn = module.ecsasg.ecsServiceRole_arn
 }
 
 /*
@@ -279,7 +328,7 @@ resource "cloudflare_record" "dns" {
   count   = var.create_dns_entry
   zone_id = data.cloudflare_zones.domain.zones[0].id
   name    = var.subdomain
-  value   = data.terraform_remote_state.common.outputs.alb_dns_name
+  value   = module.alb.dns_name
   type    = "CNAME"
   proxied = true
 }
