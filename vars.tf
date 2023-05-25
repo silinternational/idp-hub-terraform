@@ -26,14 +26,15 @@ variable "deploy_user_arn" {
   type        = string
 }
 
-variable "aws_access_key" {
+variable "aws_access_key_id" {
+  description = ""
 }
 
 variable "aws_region" {
   default = "us-east-1"
 }
 
-variable "aws_secret_key" {
+variable "aws_secret_access_key" {
 }
 
 variable "cloudflare_domain" {
