@@ -42,6 +42,11 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
+variable "aws_region_secondary" {
+  description = "AWS region in which to create replica resources. If omitted, no replicas are created."
+  default     = ""
+}
+
 variable "aws_secret_access_key" {
 }
 
@@ -71,11 +76,6 @@ variable "desired_count" {
 variable "docker_tag" {
   description = "Docker tag to use in the task definition. Must match the tag name defined in the instance repo's `push_latest` step."
   default     = "latest"
-}
-
-variable "ecr_repo_url" {
-  description = "ECR repository URL. If not specified, a new repository will be created."
-  default     = ""
 }
 
 variable "help_center_url" {
