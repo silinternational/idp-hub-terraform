@@ -2,6 +2,7 @@ locals {
   app_name_and_env = "${var.app_name}-${local.app_env}"
   app_env          = var.app_env
   app_environment  = var.app_environment
+  ecr_repo_url     = var.ecr_repo_url == "" ? module.ecr[0].repo_url : var.ecr_repo_url
   mysql_database   = "session"
   mysql_user       = "root"
   name_tag_suffix  = "${var.app_name}-${var.customer}-${local.app_environment}"
@@ -59,7 +60,7 @@ data "template_file" "task_def_hub" {
     cloudwatch_log_group_name = module.app.cloudwatch_log_group_name
     cloudflare_domain         = var.cloudflare_domain
     cpu                       = var.cpu
-    docker_image              = module.app.ecr_repo_url
+    docker_image              = local.ecr_repo_url
     docker_tag                = var.docker_tag
     dynamo_access_key_id      = aws_iam_access_key.user_login_logger.id
     dynamo_secret_access_key  = aws_iam_access_key.user_login_logger.secret
@@ -115,6 +116,8 @@ resource "aws_iam_user_policy" "dynamodb-logger-policy" {
  * Create ECR repo
  */
 module "ecr" {
+  count = var.ecr_repo_url == "" ? 1 : 0
+
   source                = "github.com/silinternational/terraform-modules//aws/ecr?ref=8.2.1"
   repo_name             = local.app_name_and_env
   ecsInstanceRole_arn   = module.app.ecsInstanceRole_arn

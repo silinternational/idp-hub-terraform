@@ -62,6 +62,10 @@ variable "docker_tag" {
   default = "latest"
 }
 
+variable "ecr_repo_url" {
+  description = "ECR repository URL. If not specified, a new repository will be created."
+}
+
 variable "help_center_url" {
   description = "Appears at the top of the IDP selection page"
   type        = string
