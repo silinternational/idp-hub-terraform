@@ -1,9 +1,7 @@
 variable "admin_email" {
-  default = "info@insitehome.org"
 }
 
 variable "admin_name" {
-  default = "Insite Admin"
 }
 
 variable "analytics_id" {
@@ -11,6 +9,21 @@ variable "analytics_id" {
 
 variable "app_name" {
   default = "idp-hub"
+}
+
+variable "app_env" {
+  type        = string
+  description = "the abbreviated version of the environment used for naming resources, typically either stg or prod"
+}
+
+variable "app_environment" {
+  type        = string
+  description = "the full, unabbreviated environment used for AWS tags, typically either staging or production"
+}
+
+variable "deploy_user_arn" {
+  description = "The ARN of a deployment service user, to be granted permissions to push and pull on the ECR repo"
+  type        = string
 }
 
 variable "aws_access_key" {
@@ -100,10 +113,6 @@ variable "show_saml_errors" {
 variable "subdomain" {
 }
 
-variable "tf_remote_common" {
-  description = "Path to the Common remote, in `org/workspace` syntax."
-}
-
 variable "customer" {
   description = "Customer name, used in AWS tags"
   type        = string
@@ -113,4 +122,44 @@ variable "create_dashboard" {
   description = "Set to true to create a CloudWatch dashboard"
   type        = bool
   default     = true
+}
+
+
+/*
+ * ECS and ASG configuration
+ */
+
+variable "asg_min_size" {
+  default = 1
+}
+
+variable "asg_max_size" {
+  default = 5
+}
+
+variable "alarm_actions_enabled" {
+  default     = false
+  description = "True/false enable auto-scaling events and actions"
+}
+
+variable "ssh_key_name" {
+  default = ""
+}
+
+/*
+ * VPC configuration
+ */
+
+variable "aws_zones" {
+  type    = list(string)
+  default = ["us-east-1c", "us-east-1d", "us-east-1e"]
+}
+
+/*
+ * ALB configuration
+ */
+
+variable "default_cert_domain_name" {
+  type        = string
+  description = "Default/primary certificate domain name"
 }
