@@ -76,30 +76,7 @@ variable "idp_display_name" {
 }
 
 variable "idp_name" {
-}
-
-variable "memcache_az_mode" {
-  type    = string
-  default = "cross-az"
-}
-
-variable "memcache_node_type" {
-  default = "cache.t2.micro"
-}
-
-variable "memcache_num_cache_nodes" {
-  type    = string
-  default = 2
-}
-
-variable "memcache_parameter_group_name" {
-  type    = string
-  default = "default.memcached1.5"
-}
-
-variable "memcache_port" {
-  type    = string
-  default = "11211"
+  description = ""
 }
 
 variable "memory" {
