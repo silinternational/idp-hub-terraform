@@ -98,8 +98,7 @@ module "ecs-service-cloudwatch-dashboard" {
  * Create Elasticache subnet group
  */
 resource "aws_elasticache_subnet_group" "memcache_subnet_group" {
-  count = 1
-  #  count = var.session_store_type == "memcache" ? 1 : 0
+  count = var.session_store_type == "memcache" ? 1 : 0
 
   name       = local.app_name_and_env
   subnet_ids = data.terraform_remote_state.common.outputs.private_subnet_ids
@@ -113,8 +112,7 @@ resource "aws_elasticache_subnet_group" "memcache_subnet_group" {
  * Create Elasticache cluster
  */
 resource "aws_elasticache_cluster" "memcache" {
-  count = 1
-  #  count = var.session_store_type == "memcache" ? 1 : 0
+  count = var.session_store_type == "memcache" ? 1 : 0
 
   cluster_id           = local.app_name_and_env
   engine               = "memcached"
@@ -136,8 +134,7 @@ resource "aws_elasticache_cluster" "memcache" {
  * Create RDS root password
  */
 resource "random_password" "db_root" {
-  count = 1
-  #  count = var.session_store_type == "sql" ? 1 : 0
+  count = var.session_store_type == "sql" ? 1 : 0
 
   length           = 16
   override_special = "!#$%&*()-_=+[]{}<>:?"
@@ -147,8 +144,7 @@ resource "random_password" "db_root" {
  * Create RDS database for session store, if session_store_type is "sql"
  */
 module "rds" {
-  count = 1
-  #  count = var.session_store_type == "sql" ? 1 : 0
+  count = var.session_store_type == "sql" ? 1 : 0
 
   source = "github.com/silinternational/terraform-modules//aws/rds/mariadb?ref=8.0.1"
 
