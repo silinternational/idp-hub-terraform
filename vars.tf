@@ -102,11 +102,6 @@ variable "memory" {
   default = "128"
 }
 
-variable "session_store_type" {
-  description = "type of storage to use for sessions, can be \"memcache\" or \"sql\""
-  default     = "sql"
-}
-
 variable "show_saml_errors" {
   default = "false"
 }

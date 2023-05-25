@@ -72,7 +72,7 @@ data "template_file" "task_def_hub" {
     mysql_user                = local.mysql_user
     mysql_password            = module.app.database_password
     secret_salt               = random_id.ssp_secret_salt.hex
-    session_store_type        = var.session_store_type
+    session_store_type        = "sql"
     show_saml_errors          = var.show_saml_errors
     subdomain                 = var.subdomain
   }
