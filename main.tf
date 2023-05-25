@@ -12,7 +12,6 @@ module "app" {
 
   app_env                  = local.app_env
   app_name                 = var.app_name
-  deploy_user_arn          = var.deploy_user_arn
   aws_region               = var.aws_region
   domain_name              = var.cloudflare_domain
   container_def_json       = data.template_file.task_def_hub.rendered
@@ -110,4 +109,17 @@ resource "aws_iam_user_policy" "dynamodb-logger-policy" {
       }
     ]
   })
+}
+
+/*
+ * Create ECR repo
+ */
+module "ecr" {
+  source                = "github.com/silinternational/terraform-modules//aws/ecr?ref=8.2.1"
+  repo_name             = local.app_name_and_env
+  ecsInstanceRole_arn   = module.app.ecsInstanceRole_arn
+  ecsServiceRole_arn    = module.app.ecsServiceRole_arn
+  cd_user_arn           = var.deploy_user_arn
+  image_retention_count = 20
+  image_retention_tags  = ["latest", "develop"]
 }
