@@ -154,12 +154,3 @@ variable "aws_zones" {
   type    = list(string)
   default = ["us-east-1c", "us-east-1d", "us-east-1e"]
 }
-
-/*
- * ALB configuration
- */
-
-variable "default_cert_domain_name" {
-  type        = string
-  description = "Default/primary certificate domain name"
-}

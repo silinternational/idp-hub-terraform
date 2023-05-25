@@ -27,7 +27,7 @@ module "app" {
   alarm_actions_enabled    = var.alarm_actions_enabled
   ssh_key_name             = var.ssh_key_name
   aws_zones                = var.aws_zones
-  default_cert_domain_name = var.default_cert_domain_name
+  default_cert_domain_name = "*.${var.cloudflare_domain}"
 }
 
 
