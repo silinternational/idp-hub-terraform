@@ -1,6 +1,3 @@
-output "ecr_repo_url" {
-  value = module.ecr.repo_url
-}
 
 output "ssp_admin_pass" {
   value = random_id.ssp_admin_pass.hex
