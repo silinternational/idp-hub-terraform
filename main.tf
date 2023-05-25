@@ -2,7 +2,8 @@ locals {
   app_name_and_env = "${var.app_name}-${local.app_env}"
   app_env          = var.app_env
   app_environment  = var.app_environment
-  ecr_repo_url     = var.ecr_repo_url == "" ? module.ecr[0].repo_url : var.ecr_repo_url
+  create_ecr_repo  = var.ecr_repo_url == ""
+  ecr_repo_url     = local.create_ecr_repo ? module.ecr[0].repo_url : var.ecr_repo_url
   mysql_database   = "session"
   mysql_user       = "root"
   name_tag_suffix  = "${var.app_name}-${var.customer}-${local.app_environment}"
@@ -116,7 +117,7 @@ resource "aws_iam_user_policy" "dynamodb-logger-policy" {
  * Create ECR repo
  */
 module "ecr" {
-  count = var.ecr_repo_url == "" ? 1 : 0
+  count = local.create_ecr_repo ? 1 : 0
 
   source                = "github.com/silinternational/terraform-modules//aws/ecr?ref=8.2.1"
   repo_name             = local.app_name_and_env
