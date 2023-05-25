@@ -49,9 +49,9 @@ variable "cpu" {
   default = "128"
 }
 
-variable "create_dns_entry" {
-  description = "Set to 1 to create Cloudflare entry, 0 to not create entry"
-  default     = 1
+variable "create_dns_record" {
+  description = "Set to false to skip creation of a Cloudflare record"
+  default     = true
 }
 
 variable "desired_count" {
