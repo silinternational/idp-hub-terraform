@@ -2,6 +2,7 @@ locals {
   app_name_and_env = "${var.app_name}-${local.app_env}"
   app_env          = var.app_env
   app_environment  = var.app_environment
+  ecr_repo_name    = local.app_name_and_env
   mysql_database   = "session"
   mysql_user       = "root"
   name_tag_suffix  = "${var.app_name}-${var.customer}-${local.app_environment}"
@@ -12,11 +13,10 @@ module "app" {
 
   app_env                  = local.app_env
   app_name                 = var.app_name
-  deploy_user_arn          = var.deploy_user_arn
   aws_region               = var.aws_region
   domain_name              = var.cloudflare_domain
   container_def_json       = data.template_file.task_def_hub.rendered
-  create_dns_record        = var.create_dns_entry
+  create_dns_record        = var.create_dns_record
   database_name            = local.mysql_database
   database_user            = local.mysql_user
   desired_count            = var.desired_count
@@ -27,7 +27,7 @@ module "app" {
   alarm_actions_enabled    = var.alarm_actions_enabled
   ssh_key_name             = var.ssh_key_name
   aws_zones                = var.aws_zones
-  default_cert_domain_name = var.default_cert_domain_name
+  default_cert_domain_name = "*.${var.cloudflare_domain}"
 }
 
 
@@ -60,7 +60,7 @@ data "template_file" "task_def_hub" {
     cloudwatch_log_group_name = module.app.cloudwatch_log_group_name
     cloudflare_domain         = var.cloudflare_domain
     cpu                       = var.cpu
-    docker_image              = module.app.ecr_repo_url
+    docker_image              = module.ecr.repo_url
     docker_tag                = var.docker_tag
     dynamo_access_key_id      = aws_iam_access_key.user_login_logger.id
     dynamo_secret_access_key  = aws_iam_access_key.user_login_logger.secret
@@ -73,7 +73,7 @@ data "template_file" "task_def_hub" {
     mysql_user                = local.mysql_user
     mysql_password            = module.app.database_password
     secret_salt               = random_id.ssp_secret_salt.hex
-    session_store_type        = var.session_store_type
+    session_store_type        = "sql"
     show_saml_errors          = var.show_saml_errors
     subdomain                 = var.subdomain
   }
@@ -111,3 +111,36 @@ resource "aws_iam_user_policy" "dynamodb-logger-policy" {
     ]
   })
 }
+
+/*
+ * Create ECR repo
+ */
+module "ecr" {
+  source                = "github.com/silinternational/terraform-modules//aws/ecr?ref=8.2.1"
+  repo_name             = local.ecr_repo_name
+  ecsInstanceRole_arn   = module.app.ecsInstanceRole_arn
+  ecsServiceRole_arn    = module.app.ecsServiceRole_arn
+  cd_user_arn           = var.deploy_user_arn
+  image_retention_count = 20
+  image_retention_tags  = ["latest", "develop"]
+}
+
+resource "aws_ecr_replication_configuration" "this" {
+  count      = var.aws_region_secondary != "" ? 1 : 0
+  depends_on = [module.ecr]
+
+  replication_configuration {
+    rule {
+      destination {
+        region      = var.aws_region_secondary
+        registry_id = data.aws_caller_identity.this.account_id
+      }
+      repository_filter {
+        filter      = local.ecr_repo_name
+        filter_type = "PREFIX_MATCH"
+      }
+    }
+  }
+}
+
+data "aws_caller_identity" "this" {}
