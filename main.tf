@@ -159,13 +159,6 @@ module "rds" {
   allocated_storage = 20 // 20 gibibyte
   instance_class    = "db.t3.micro"
   multi_az          = true
-  tags = {
-    managed_by        = "terraform"
-    workspace         = terraform.workspace
-    itse_app_customer = var.customer
-    itse_app_env      = local.app_environment
-    itse_app_name     = "idp-hub"
-  }
 }
 
 /*
