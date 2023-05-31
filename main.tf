@@ -159,13 +159,6 @@ module "rds" {
   allocated_storage = 20 // 20 gibibyte
   instance_class    = "db.t3.micro"
   multi_az          = true
-  tags = {
-    managed_by        = "terraform"
-    workspace         = terraform.workspace
-    itse_app_customer = var.customer
-    itse_app_env      = local.app_environment
-    itse_app_name     = "idp-hub"
-  }
 }
 
 /*
@@ -290,5 +283,26 @@ data "cloudflare_zones" "domain" {
     name        = var.cloudflare_domain
     lookup_type = "exact"
     status      = "active"
+  }
+}
+
+locals {
+  table_names = {
+    stg  = "sildisco_dev_user-log"
+    prod = "sildisco_prod_user-log"
+  }
+}
+
+resource "aws_dynamodb_table" "logger" {
+  name         = local.table_names[local.app_env]
+  billing_mode = "PAY_PER_REQUEST"
+  attribute {
+    name = "ID"
+    type = "S"
+  }
+  hash_key = "ID"
+  ttl {
+    enabled        = true
+    attribute_name = "ExpiresAt"
   }
 }
