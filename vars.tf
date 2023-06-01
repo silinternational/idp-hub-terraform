@@ -35,6 +35,7 @@ variable "deploy_user_arn" {
 
 variable "aws_access_key_id" {
   description = ""
+  default     = null
 }
 
 variable "aws_region" {
@@ -48,6 +49,7 @@ variable "aws_region_secondary" {
 }
 
 variable "aws_secret_access_key" {
+  default = null
 }
 
 variable "cloudflare_domain" {
@@ -56,6 +58,7 @@ variable "cloudflare_domain" {
 
 variable "cloudflare_token" {
   description = "The Cloudflare API token with permissions on `cloudflare_domain`."
+  default     = null
 }
 
 variable "cpu" {
