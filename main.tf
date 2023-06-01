@@ -13,7 +13,6 @@ module "app" {
 
   app_env                  = local.app_env
   app_name                 = var.app_name
-  aws_region               = var.aws_region
   domain_name              = var.cloudflare_domain
   container_def_json       = data.template_file.task_def_hub.rendered
   create_dns_record        = var.create_dns_record
