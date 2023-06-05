@@ -16,6 +16,7 @@ module "app" {
   domain_name              = var.cloudflare_domain
   container_def_json       = data.template_file.task_def_hub.rendered
   create_dns_record        = var.create_dns_record
+  create_cd_user           = true
   database_name            = local.mysql_database
   database_user            = local.mysql_user
   desired_count            = var.desired_count
