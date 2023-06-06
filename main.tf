@@ -83,7 +83,7 @@ data "template_file" "task_def_hub" {
  * Create user for dynamo permissions
  */
 resource "aws_iam_user" "user_login_logger" {
-  name = "idp_hub_user_login_logger-${local.app_env}-mr"
+  name = "idp_hub_user_login_logger-${local.app_name_and_env}"
 }
 
 /*
@@ -97,7 +97,7 @@ resource "aws_iam_access_key" "user_login_logger" {
  * Allow user_login_logger user to write to Dynamodb
  */
 resource "aws_iam_user_policy" "dynamodb-logger-policy" {
-  name = "dynamodb_user_login_logger_policy-${local.app_env}"
+  name = "dynamodb_user_login_logger_policy-${local.app_name_and_env}"
   user = aws_iam_user.user_login_logger.name
 
   policy = jsonencode({
