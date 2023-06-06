@@ -144,3 +144,24 @@ resource "aws_ecr_replication_configuration" "this" {
 }
 
 data "aws_caller_identity" "this" {}
+
+locals {
+  table_names = {
+    stg  = "sildisco_dev_user-log"
+    prod = "sildisco_prod_user-log"
+  }
+}
+
+resource "aws_dynamodb_table" "logger" {
+  name         = local.table_names[local.app_env]
+  billing_mode = "PAY_PER_REQUEST"
+  attribute {
+    name = "ID"
+    type = "S"
+  }
+  hash_key = "ID"
+  ttl {
+    enabled        = true
+    attribute_name = "ExpiresAt"
+  }
+}
