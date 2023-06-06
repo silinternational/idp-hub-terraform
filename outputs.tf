@@ -10,3 +10,12 @@ output "ssp_secret_salt" {
 output "url" {
   value = "https://${var.subdomain}.${var.cloudflare_domain}"
 }
+
+output "cd_user_access_key_id" {
+  value = module.app.cd_user_access_key_id
+}
+
+output "cd_user_secret_access_key_id" {
+  value     = module.app.cd_user_secret_access_key_id
+  sensitive = true
+}
