@@ -106,7 +106,7 @@ resource "aws_iam_user_policy" "dynamodb-logger-policy" {
       {
         "Effect" : "Allow",
         "Action" : ["dynamodb:PutItem"],
-        "Resource" : "arn:aws:dynamodb:*:*:table/sildisco_*_user-log"
+        "Resource" : aws_dynamodb_table.logger.arn
       }
     ]
   })
@@ -145,15 +145,12 @@ resource "aws_ecr_replication_configuration" "this" {
 
 data "aws_caller_identity" "this" {}
 
-locals {
-  table_names = {
-    stg  = "sildisco_dev_user-log"
-    prod = "sildisco_prod_user-log"
-  }
-}
+/*
+ * DynamoDB table for user login activity logging
+ */
 
 resource "aws_dynamodb_table" "logger" {
-  name         = local.table_names[local.app_env]
+  name         = "${local.app_name_and_env}-user-log"
   billing_mode = "PAY_PER_REQUEST"
   attribute {
     name = "ID"
