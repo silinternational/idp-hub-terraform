@@ -180,6 +180,12 @@ variable "desired_count" {
   default     = 2
 }
 
+variable "instance_type" {
+  description = "See: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html#AvailableInstanceTypes"
+  default     = "t2.micro"
+  type        = string
+}
+
 variable "ssh_key_name" {
   description = "Name of SSH key pair to use as default (ec2-user) user key. Set in the launch template"
   type        = string
