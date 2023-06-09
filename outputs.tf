@@ -1,6 +1,3 @@
-output "ecr_repo_url" {
-  value = module.ecr.repo_url
-}
 
 output "ssp_admin_pass" {
   value = random_id.ssp_admin_pass.hex
@@ -12,4 +9,26 @@ output "ssp_secret_salt" {
 
 output "url" {
   value = "https://${var.subdomain}.${var.cloudflare_domain}"
+}
+
+output "cd_user_access_key_id" {
+  value = module.app.cd_user_access_key_id
+}
+
+output "cd_user_secret_access_key_id" {
+  value     = module.app.cd_user_secret_access_key_id
+  sensitive = true
+}
+
+output "user_log_table" {
+  value = aws_dynamodb_table.logger.name
+}
+
+output "user_log_access_key_id" {
+  value = aws_iam_access_key.user_login_logger.id
+}
+
+output "user_log_secret_access_key" {
+  value     = aws_iam_access_key.user_login_logger.secret
+  sensitive = true
 }
