@@ -24,6 +24,7 @@ module "app" {
   create_dashboard         = var.create_dashboard
   asg_min_size             = var.asg_min_size
   asg_max_size             = var.asg_max_size
+  instance_type            = var.instance_type
   alarm_actions_enabled    = var.alarm_actions_enabled
   ssh_key_name             = var.ssh_key_name
   aws_zones                = var.aws_zones
