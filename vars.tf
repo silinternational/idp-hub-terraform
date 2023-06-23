@@ -51,7 +51,7 @@ variable "aws_region" {
 }
 
 variable "aws_region_secondary" {
-  description = "AWS region in which to create replica resources. If omitted, no replicas are created."
+  description = "AWS region in which to create replica resources. If omitted, no replicas are created and this hub is configured to be the secondary."
   type        = string
   default     = ""
 }
