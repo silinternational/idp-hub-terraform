@@ -3,21 +3,22 @@ locals {
   app_env          = var.app_env
   app_environment  = var.app_environment
   ecr_repo_name    = local.app_name_and_env
-  is_primary       = var.aws_region_secondary != ""
+  is_multiregion   = var.aws_region_secondary != ""
+  is_primary       = local.is_multiregion && var.aws_region != var.aws_region_secondary
   mysql_database   = "session"
   mysql_user       = "root"
   name_tag_suffix  = "${var.app_name}-${var.customer}-${local.app_environment}"
 }
 
 module "app" {
-  source = "github.com/silinternational/terraform-aws-ecs-app?ref=develop"
+  source = "github.com/silinternational/terraform-aws-ecs-app?ref=0.1.0"
 
   app_env                  = local.app_env
   app_name                 = var.app_name
   domain_name              = var.cloudflare_domain
   container_def_json       = data.template_file.task_def_hub.rendered
   create_dns_record        = var.create_dns_record
-  create_cd_user           = local.is_primary
+  create_cd_user           = !local.is_multiregion || local.is_primary
   database_name            = local.mysql_database
   database_user            = local.mysql_user
   desired_count            = var.desired_count
