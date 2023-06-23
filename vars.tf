@@ -56,6 +56,12 @@ variable "aws_region_secondary" {
   default     = ""
 }
 
+variable "cd_user_arn" {
+  description = "ARN of the Continuous Deployment (CD) user created by the primary hub in a multiregion configuration. Ignored in a single-region configuration."
+  type        = string
+  default     = ""
+}
+
 variable "docker_tag" {
   description = "Docker tag to use in the task definition. Must match the tag name defined in the instance repo's `push_latest` step."
   type        = string
