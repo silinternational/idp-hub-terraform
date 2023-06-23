@@ -85,7 +85,7 @@ data "template_file" "task_def_hub" {
  * Create user for dynamo permissions
  */
 resource "aws_iam_user" "user_login_logger" {
-  name = "idp_hub_user_login_logger-${local.app_name_and_env}"
+  name = "idp_hub_user_login_logger-${local.app_name_and_env}-${var.aws_region}"
 }
 
 /*
