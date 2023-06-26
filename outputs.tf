@@ -1,10 +1,12 @@
 
 output "ssp_admin_pass" {
-  value = random_id.ssp_admin_pass.hex
+  value     = random_id.ssp_admin_pass.hex
+  sensitive = true
 }
 
 output "ssp_secret_salt" {
-  value = random_id.ssp_secret_salt.hex
+  value     = random_id.ssp_secret_salt.hex
+  sensitive = true
 }
 
 output "url" {
