@@ -31,6 +31,8 @@ module "app" {
   ssh_key_name             = var.ssh_key_name
   aws_zones                = var.aws_zones
   default_cert_domain_name = "*.${var.cloudflare_domain}"
+  create_adminer           = true
+  enable_adminer           = var.enable_adminer
 }
 
 
