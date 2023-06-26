@@ -23,12 +23,3 @@ output "cd_user_secret_access_key_id" {
 output "user_log_table" {
   value = aws_dynamodb_table.logger.name
 }
-
-output "user_log_access_key_id" {
-  value = aws_iam_access_key.user_login_logger.id
-}
-
-output "user_log_secret_access_key" {
-  value     = aws_iam_access_key.user_login_logger.secret
-  sensitive = true
-}
