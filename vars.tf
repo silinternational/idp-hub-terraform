@@ -68,12 +68,6 @@ variable "docker_tag" {
   default     = "latest"
 }
 
-variable "create_dashboard" {
-  description = "Set to true to create a CloudWatch dashboard"
-  type        = bool
-  default     = true
-}
-
 
 /*
  * Task definition configuration
@@ -207,4 +201,21 @@ variable "aws_zones" {
   description = "The VPC availability zone list"
   type        = list(string)
   default     = ["us-east-1c", "us-east-1d", "us-east-1e"]
+}
+
+
+/*
+ * Optional features
+ */
+
+variable "create_dashboard" {
+  description = "Set to true to create a CloudWatch dashboard for monitoring ECS memory and CPU utilization"
+  type        = bool
+  default     = true
+}
+
+variable "enable_adminer" {
+  description = "Control the creation of a DNS record for Adminer and the desired_count for the Adminer ECS service"
+  type        = bool
+  default     = false
 }
