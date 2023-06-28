@@ -5,6 +5,7 @@ locals {
   ecr_repo_name    = local.app_name_and_env
   is_multiregion   = var.aws_region_secondary != ""
   is_primary       = local.is_multiregion && var.aws_region != var.aws_region_secondary
+  create_cd_user   = !local.is_multiregion || local.is_primary
   mysql_database   = "session"
   mysql_user       = "root"
   name_tag_suffix  = "${var.app_name}-${var.customer}-${local.app_environment}"
@@ -18,7 +19,8 @@ module "app" {
   domain_name              = var.cloudflare_domain
   container_def_json       = data.template_file.task_def_hub.rendered
   create_dns_record        = var.create_dns_record
-  create_cd_user           = !local.is_multiregion || local.is_primary
+  dns_allow_overwrite      = local.is_multiregion
+  create_cd_user           = local.create_cd_user
   database_name            = local.mysql_database
   database_user            = local.mysql_user
   desired_count            = var.desired_count
@@ -125,7 +127,7 @@ module "ecr" {
   repo_name             = local.ecr_repo_name
   ecsInstanceRole_arn   = module.app.ecsInstanceRole_arn
   ecsServiceRole_arn    = module.app.ecsServiceRole_arn
-  cd_user_arn           = module.app.cd_user_arn
+  cd_user_arn           = local.create_cd_user ? module.app.cd_user_arn : var.cd_user_arn
   image_retention_count = 20
   image_retention_tags  = ["latest", "develop"]
 }

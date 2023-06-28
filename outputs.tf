@@ -22,6 +22,10 @@ output "cd_user_secret_access_key_id" {
   sensitive = true
 }
 
+output "cd_user_arn" {
+  value = local.create_cd_user ? module.app.cd_user_arn : var.cd_user_arn
+}
+
 output "user_log_table" {
   value = aws_dynamodb_table.logger.name
 }

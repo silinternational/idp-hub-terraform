@@ -51,7 +51,13 @@ variable "aws_region" {
 }
 
 variable "aws_region_secondary" {
-  description = "AWS region in which to create replica resources. If omitted, no replicas are created and this hub is configured to be the secondary."
+  description = "AWS region in which to create ECR replicas. Must be specified in both the primary and secondary hub workspaces. Leave empty for a single-region setup."
+  type        = string
+  default     = ""
+}
+
+variable "cd_user_arn" {
+  description = "ARN of the Continuous Deployment (CD) user created by the primary hub in a multiregion configuration. Ignored in a single-region configuration."
   type        = string
   default     = ""
 }
