@@ -70,14 +70,6 @@
         "value": "${idp_name}"
       },
       {
-        "name": "MEMCACHE_HOST1",
-        "value": "${memcache_host1}"
-      },
-      {
-        "name": "MEMCACHE_HOST2",
-        "value": "${memcache_host2}"
-      },
-      {
         "name": "MYSQL_HOST",
         "value": "${mysql_host}"
       },
