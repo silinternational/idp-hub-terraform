@@ -132,25 +132,6 @@ module "ecr" {
   image_retention_tags  = ["latest", "develop"]
 }
 
-resource "aws_ecr_replication_configuration" "this" {
-  count      = local.is_primary ? 1 : 0
-  depends_on = [module.ecr]
-
-  replication_configuration {
-    rule {
-      destination {
-        region      = var.aws_region_secondary
-        registry_id = data.aws_caller_identity.this.account_id
-      }
-      repository_filter {
-        filter      = local.ecr_repo_name
-        filter_type = "PREFIX_MATCH"
-      }
-    }
-  }
-}
-
-data "aws_caller_identity" "this" {}
 
 /*
  * DynamoDB table for user login activity logging
