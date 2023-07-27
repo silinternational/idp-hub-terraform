@@ -133,8 +133,6 @@ module "ecr" {
 }
 
 
-data "aws_caller_identity" "this" {}
-
 /*
  * DynamoDB table for user login activity logging
  */
