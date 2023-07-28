@@ -45,7 +45,7 @@ resource "cloudflare_record" "intermediate" {
   name    = "${var.subdomain}-${var.aws_region}"
   value   = module.app.alb_dns_name
   type    = "CNAME"
-  comment = "intermediate record"
+  comment = "intermediate record - DO NOT change this"
   proxied = true
 }
 
@@ -59,7 +59,7 @@ resource "cloudflare_record" "public" {
   name    = var.subdomain
   value   = cloudflare_record.intermediate.hostname
   type    = "CNAME"
-  comment = "public record"
+  comment = "public record - this can be changed for failover"
   proxied = true
 }
 
