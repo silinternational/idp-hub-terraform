@@ -1,14 +1,14 @@
 locals {
-  app_name_and_env = "${var.app_name}-${local.app_env}"
-  app_env          = var.app_env
-  app_environment  = var.app_environment
-  ecr_repo_name    = local.app_name_and_env
-  is_multiregion   = var.aws_region_secondary != ""
-  is_primary       = local.is_multiregion && var.aws_region != var.aws_region_secondary
-  create_cd_user   = !local.is_multiregion || local.is_primary
-  mysql_database   = "session"
-  mysql_user       = "root"
-  name_tag_suffix  = "${var.app_name}-${var.customer}-${local.app_environment}"
+  app_name_and_env       = "${var.app_name}-${local.app_env}"
+  app_env                = var.app_env
+  app_environment        = var.app_environment
+  ecr_repo_name          = local.app_name_and_env
+  is_multiregion         = var.aws_region_secondary != ""
+  is_multiregion_primary = local.is_multiregion && var.aws_region != var.aws_region_secondary
+  create_cd_user         = !local.is_multiregion || local.is_multiregion_primary
+  mysql_database         = "session"
+  mysql_user             = "root"
+  name_tag_suffix        = "${var.app_name}-${var.customer}-${local.app_environment}"
 }
 
 module "app" {
@@ -18,7 +18,7 @@ module "app" {
   app_name                 = var.app_name
   domain_name              = var.cloudflare_domain
   container_def_json       = data.template_file.task_def_hub.rendered
-  create_dns_record        = var.create_dns_record
+  create_dns_record        = false
   create_cd_user           = local.create_cd_user
   database_name            = local.mysql_database
   database_user            = local.mysql_user
@@ -34,6 +34,35 @@ module "app" {
   default_cert_domain_name = "*.${var.cloudflare_domain}"
   create_adminer           = true
   enable_adminer           = var.enable_adminer
+}
+
+
+/*
+ * Create intermediate DNS record using Cloudflare (e.g. hub-us-east-2.example.com)
+ */
+resource "cloudflare_record" "intermediate" {
+  zone_id = data.cloudflare_zone.this.id
+  name    = "${var.subdomain}-${var.aws_region}"
+  value   = module.app.alb_dns_name
+  type    = "CNAME"
+  proxied = true
+}
+
+/*
+ * Create public DNS record using Cloudflare (e.g. hub.example.com)
+ */
+resource "cloudflare_record" "public" {
+  count = local.is_multiregion_primary || !local.is_multiregion ? 1 : 0
+
+  zone_id = data.cloudflare_zone.this.id
+  name    = var.subdomain
+  value   = cloudflare_record.intermediate.hostname
+  type    = "CNAME"
+  proxied = true
+}
+
+data "cloudflare_zone" "this" {
+  name = var.cloudflare_domain
 }
 
 
