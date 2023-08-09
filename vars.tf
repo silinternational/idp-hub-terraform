@@ -140,12 +140,6 @@ variable "cloudflare_token" {
   default     = null
 }
 
-variable "create_dns_record" {
-  description = "Set to false to skip creation of a Cloudflare DNS record"
-  type        = string
-  default     = true
-}
-
 variable "subdomain" {
   description = "The subdomain on which to host the app. Combined with \"cloudflare_domain\" to create an ALB listener rule. Also used for the optional DNS record."
   type        = string

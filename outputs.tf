@@ -29,3 +29,7 @@ output "cd_user_arn" {
 output "user_log_table" {
   value = aws_dynamodb_table.logger.name
 }
+
+output "alb_dns_name" {
+  value = module.app.alb_dns_name
+}
