@@ -12,7 +12,8 @@ locals {
 }
 
 module "app" {
-  source = "github.com/silinternational/terraform-aws-ecs-app?ref=develop"
+  source  = "silinternational/ecs-app/aws"
+  version = "0.4.0"
 
   app_env                  = local.app_env
   app_name                 = var.app_name
