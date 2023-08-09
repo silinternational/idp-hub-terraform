@@ -17,7 +17,7 @@ module "app" {
   app_env                  = local.app_env
   app_name                 = var.app_name
   domain_name              = var.cloudflare_domain
-  container_def_json       = data.template_file.task_def_hub.rendered
+  container_def_json       = local.task_def_hub
   create_dns_record        = false
   create_cd_user           = local.create_cd_user
   database_name            = local.mysql_database
