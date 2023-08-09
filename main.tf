@@ -17,7 +17,7 @@ module "app" {
   app_env                  = local.app_env
   app_name                 = var.app_name
   domain_name              = var.cloudflare_domain
-  container_def_json       = data.template_file.task_def_hub.rendered
+  container_def_json       = local.task_def_hub
   create_dns_record        = false
   create_cd_user           = local.create_cd_user
   database_name            = local.mysql_database
@@ -83,10 +83,8 @@ resource "random_id" "ssp_secret_salt" {
 /*
  * Create task definition template
  */
-data "template_file" "task_def_hub" {
-  template = file("${path.module}/task-def-hub.json")
-
-  vars = {
+locals {
+  task_def_hub = templatefile("${path.module}/task-def-hub.json", {
     admin_email               = var.admin_email
     admin_name                = var.admin_name
     admin_pass                = random_id.ssp_admin_pass.hex
@@ -113,7 +111,7 @@ data "template_file" "task_def_hub" {
     session_store_type        = "sql"
     show_saml_errors          = var.show_saml_errors
     subdomain                 = var.subdomain
-  }
+  })
 }
 
 /*

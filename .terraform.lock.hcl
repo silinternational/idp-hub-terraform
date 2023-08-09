@@ -86,11 +86,3 @@ provider "registry.terraform.io/hashicorp/random" {
     "zh:eab0d0495e7e711cca367f7d4df6e322e6c562fc52151ec931176115b83ed014",
   ]
 }
-
-provider "registry.terraform.io/hashicorp/template" {
-  version     = "2.2.0"
-  constraints = "~> 2.2"
-  hashes = [
-    "h1:94qn780bi1qjrbC3uQtjJh3Wkfwd5+tTtJHOb7KTg9w=",
-  ]
-}
