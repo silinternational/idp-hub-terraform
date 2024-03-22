@@ -94,6 +94,12 @@ variable "cpu" {
   default     = "128"
 }
 
+variable "enable_debug" {
+  description = "Enables debug for SimpleSAMLphp 'saml' and 'validatexml' modes. CAUTION: may log decrypted SAML messages."
+  type        = string
+  default     = "false"
+}
+
 variable "idp_display_name" {
   description = "The name of the hub as presented to the end user."
   type        = string

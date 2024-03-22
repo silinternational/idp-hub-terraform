@@ -100,6 +100,7 @@ locals {
     docker_tag                = var.docker_tag
     dynamo_access_key_id      = aws_iam_access_key.user_login_logger.id
     dynamo_secret_access_key  = aws_iam_access_key.user_login_logger.secret
+    enable_debug              = var.enable_debug
     help_center_url           = var.help_center_url
     idp_display_name          = var.idp_display_name
     idp_name                  = var.idp_name
