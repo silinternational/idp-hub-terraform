@@ -96,6 +96,10 @@
       {
         "name": "SHOW_SAML_ERRORS",
         "value": "${show_saml_errors}"
+      },
+      {
+        "name": "ENABLE_DEBUG",
+        "value": "${enable_debug}"
       }
     ],
     "ulimits": null,
