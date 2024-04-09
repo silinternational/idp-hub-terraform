@@ -13,7 +13,7 @@ locals {
 
 module "app" {
   source  = "silinternational/ecs-app/aws"
-  version = "0.4.0"
+  version = "0.5.0"
 
   app_env                  = local.app_env
   app_name                 = var.app_name
@@ -35,6 +35,7 @@ module "app" {
   default_cert_domain_name = "*.${var.cloudflare_domain}"
   create_adminer           = true
   enable_adminer           = var.enable_adminer
+  rds_ca_cert_identifier   = "rds-ca-rsa2048-g1"
 }
 
 
@@ -153,7 +154,7 @@ resource "aws_iam_user_policy" "dynamodb-logger-policy" {
  * Create ECR repo
  */
 module "ecr" {
-  source                = "github.com/silinternational/terraform-modules//aws/ecr?ref=8.2.1"
+  source                = "github.com/silinternational/terraform-modules//aws/ecr?ref=8.8.0"
   repo_name             = local.ecr_repo_name
   ecsInstanceRole_arn   = module.app.ecsInstanceRole_arn
   ecsServiceRole_arn    = module.app.ecsServiceRole_arn
