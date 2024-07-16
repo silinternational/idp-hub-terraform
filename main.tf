@@ -13,7 +13,7 @@ locals {
 
 module "app" {
   source  = "silinternational/ecs-app/aws"
-  version = "0.5.0"
+  version = "0.6.0"
 
   app_env                  = local.app_env
   app_name                 = var.app_name
@@ -36,6 +36,10 @@ module "app" {
   create_adminer           = true
   enable_adminer           = var.enable_adminer
   rds_ca_cert_identifier   = "rds-ca-rsa2048-g1"
+  health_check = {
+    matcher = "302,303"
+    path    = "/"
+  }
 }
 
 
