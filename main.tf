@@ -118,6 +118,7 @@ locals {
     session_store_type        = "sql"
     show_saml_errors          = var.show_saml_errors
     subdomain                 = var.subdomain
+    theme_color_scheme        = var.theme_color_scheme
   })
 }
 
