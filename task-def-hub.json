@@ -100,6 +100,10 @@
       {
         "name": "ENABLE_DEBUG",
         "value": "${enable_debug}"
+      },
+      {
+        "name": "THEME_COLOR_SCHEME",
+        "value": "${theme_color_scheme}"
       }
     ],
     "ulimits": null,
