@@ -130,6 +130,12 @@ variable "show_saml_errors" {
   default     = "false"
 }
 
+variable "theme_color_scheme" {
+  description = "Set the color scheme for the material theme. Use one of: indigo-purple, blue_grey-teal, red-teal, orange-light_blue, brown-orange, teal-blue"
+  type        = string
+  default     = "indigo-purple"
+}
+
 
 /*
  * DNS configuration
