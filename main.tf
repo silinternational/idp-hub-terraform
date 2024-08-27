@@ -206,5 +206,5 @@ module "aws_backup" {
 }
 
 data "aws_db_instance" "this" {
-  db_instance_identifier = "idp-${var.idp_name}-${var.app_env}"
+  db_instance_identifier = "${var.app_name}-${var.app_env}"
 }
