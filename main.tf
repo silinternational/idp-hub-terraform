@@ -9,11 +9,18 @@ locals {
   mysql_database         = "session"
   mysql_user             = "root"
   name_tag_suffix        = "${var.app_name}-${var.customer}-${local.app_environment}"
+  tags = {
+    managed_by        = "terraform"
+    workspace         = terraform.workspace
+    itse_app_customer = var.customer
+    itse_app_env      = local.app_environment
+    itse_app_name     = "idp-hub"
+  }
 }
 
 module "app" {
   source  = "silinternational/ecs-app/aws"
-  version = "0.6.0"
+  version = "0.8.0"
 
   app_env                  = local.app_env
   app_name                 = var.app_name
@@ -36,6 +43,8 @@ module "app" {
   create_adminer           = true
   enable_adminer           = var.enable_adminer
   rds_ca_cert_identifier   = "rds-ca-rsa2048-g1"
+  log_retention_in_days    = 60
+  asg_tags                 = local.tags
   health_check = {
     matcher = "302,303"
     path    = "/"
