@@ -206,7 +206,7 @@ module "aws_backup" {
   source  = "silinternational/backup/aws"
   version = "0.1.0"
 
-  app_name = var.app_name
+  app_name = "${var.app_name}-${var.aws_region}"
   app_env  = var.app_env
   source_arns = [
     data.aws_db_instance.this.db_instance_arn,
