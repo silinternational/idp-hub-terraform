@@ -9,11 +9,18 @@ locals {
   mysql_database         = "session"
   mysql_user             = "root"
   name_tag_suffix        = "${var.app_name}-${var.customer}-${local.app_environment}"
+  tags = {
+    managed_by        = "terraform"
+    workspace         = terraform.workspace
+    itse_app_customer = var.customer
+    itse_app_env      = local.app_environment
+    itse_app_name     = "idp-hub"
+  }
 }
 
 module "app" {
   source  = "silinternational/ecs-app/aws"
-  version = "0.6.0"
+  version = "0.8.0"
 
   app_env                  = local.app_env
   app_name                 = var.app_name
@@ -36,6 +43,8 @@ module "app" {
   create_adminer           = true
   enable_adminer           = var.enable_adminer
   rds_ca_cert_identifier   = "rds-ca-rsa2048-g1"
+  log_retention_in_days    = 60
+  asg_tags                 = local.tags
   health_check = {
     matcher = "302,303"
     path    = "/"
@@ -185,4 +194,29 @@ resource "aws_dynamodb_table" "logger" {
     enabled        = true
     attribute_name = "ExpiresAt"
   }
+}
+
+
+/*
+ * AWS backup
+ */
+module "aws_backup" {
+  count = var.enable_aws_backup ? 1 : 0
+
+  source  = "silinternational/backup/aws"
+  version = "0.1.0"
+
+  app_name = var.app_name
+  app_env  = var.app_env
+  source_arns = [
+    data.aws_db_instance.this.db_instance_arn,
+    aws_dynamodb_table.logger.arn
+  ]
+  backup_schedule     = "cron(${var.aws_backup_cron_schedule})"
+  notification_events = var.aws_backup_notification_events
+  sns_topic_name      = "${local.app_name_and_env}-backup-vault-events"
+}
+
+data "aws_db_instance" "this" {
+  db_instance_identifier = "${var.app_name}-${var.app_env}"
 }
