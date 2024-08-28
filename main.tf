@@ -203,15 +203,18 @@ resource "aws_dynamodb_table" "logger" {
 module "aws_backup" {
   count = var.enable_aws_backup ? 1 : 0
 
-  source   = "github.com/silinternational/terraform-modules//aws/backup/rds?ref=8.8.0"
+  source  = "silinternational/backup/aws"
+  version = "0.1.0"
+
   app_name = var.app_name
   app_env  = var.app_env
   source_arns = [
     data.aws_db_instance.this.db_instance_arn,
     aws_dynamodb_table.logger.arn
   ]
-  backup_cron_schedule = var.aws_backup_cron_schedule
-  notification_events  = var.aws_backup_notification_events
+  backup_schedule     = "cron(${var.aws_backup_cron_schedule})"
+  notification_events = var.aws_backup_notification_events
+  sns_topic_name      = "${local.app_name_and_env}-backup-vault-events"
 }
 
 data "aws_db_instance" "this" {
