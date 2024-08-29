@@ -204,17 +204,18 @@ module "aws_backup" {
   count = var.enable_aws_backup ? 1 : 0
 
   source  = "silinternational/backup/aws"
-  version = "0.1.0"
+  version = "0.2.0"
 
-  app_name = var.app_name
+  app_name = "${var.app_name}-${var.aws_region}"
   app_env  = var.app_env
   source_arns = [
     data.aws_db_instance.this.db_instance_arn,
     aws_dynamodb_table.logger.arn
   ]
-  backup_schedule     = "cron(${var.aws_backup_cron_schedule})"
-  notification_events = var.aws_backup_notification_events
-  sns_topic_name      = "${local.app_name_and_env}-backup-vault-events"
+  backup_schedule        = "cron(${var.aws_backup_cron_schedule})"
+  notification_events    = var.aws_backup_notification_events
+  sns_topic_name         = "${local.app_name_and_env}-backup-vault-events"
+  sns_email_subscription = var.backup_sns_email
 }
 
 data "aws_db_instance" "this" {

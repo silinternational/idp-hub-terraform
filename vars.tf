@@ -248,3 +248,9 @@ variable "aws_backup_notification_events" {
   type        = list(string)
   default     = ["BACKUP_JOB_FAILED"]
 }
+
+variable "backup_sns_email" {
+  description = "Optional: email address to receive backup event notifications"
+  type        = string
+  default     = ""
+}
