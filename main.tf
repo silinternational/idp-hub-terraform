@@ -20,7 +20,7 @@ locals {
 
 module "app" {
   source  = "silinternational/ecs-app/aws"
-  version = "0.8.0"
+  version = "0.9.0"
 
   app_env                  = local.app_env
   app_name                 = var.app_name
@@ -116,8 +116,6 @@ locals {
     dynamo_secret_access_key  = aws_iam_access_key.user_login_logger.secret
     enable_debug              = var.enable_debug
     help_center_url           = var.help_center_url
-    idp_display_name          = var.idp_display_name
-    idp_name                  = var.idp_name
     memory                    = var.memory
     mysql_host                = module.app.database_host
     mysql_database            = local.mysql_database
@@ -209,15 +207,11 @@ module "aws_backup" {
   app_name = "${var.app_name}-${var.aws_region}"
   app_env  = var.app_env
   source_arns = [
-    data.aws_db_instance.this.db_instance_arn,
+    module.app.database_arn,
     aws_dynamodb_table.logger.arn
   ]
   backup_schedule        = "cron(${var.aws_backup_cron_schedule})"
   notification_events    = var.aws_backup_notification_events
   sns_topic_name         = "${local.app_name_and_env}-backup-vault-events"
   sns_email_subscription = var.backup_sns_email
-}
-
-data "aws_db_instance" "this" {
-  db_instance_identifier = "${var.app_name}-${var.app_env}"
 }

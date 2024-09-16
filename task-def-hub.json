@@ -42,10 +42,6 @@
         "value": "https://${subdomain}.${cloudflare_domain}/"
       },
       {
-        "name": "ENABLE_HUB_AUTHPROCS",
-        "value": "true"
-      },
-      {
         "name": "DYNAMO_ACCESS_KEY_ID",
         "value": "${dynamo_access_key_id}"
       },
@@ -60,14 +56,6 @@
       {
         "name": "HUB_MODE",
         "value": "true"
-      },
-      {
-        "name": "IDP_DISPLAY_NAME",
-        "value": "${idp_display_name}"
-      },
-      {
-        "name": "IDP_NAME",
-        "value": "${idp_name}"
       },
       {
         "name": "MYSQL_HOST",
