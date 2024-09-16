@@ -100,18 +100,6 @@ variable "enable_debug" {
   default     = "false"
 }
 
-variable "idp_display_name" {
-  description = "The name of the hub as presented to the end user."
-  type        = string
-  default     = "IdP dev hub"
-}
-
-variable "idp_name" {
-  description = "Required by ssp-base, but not actually used."
-  type        = string
-  default     = "hub"
-}
-
 variable "help_center_url" {
   description = "The URL for the \"Help\" link at the top of the IDP selection page"
   type        = string
