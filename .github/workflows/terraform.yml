@@ -7,37 +7,31 @@ name: 'Terraform'
 
 on:
   push:
-  pull_request:
-
-permissions:
-  contents: read
+    branches: ["**"]
 
 jobs:
   terraform:
     name: 'Terraform'
-    runs-on: ubuntu-22.04
-
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
-    defaults:
-      run:
-        shell: bash
+    runs-on: ubuntu-latest
 
     steps:
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     # Install the latest version of Terraform CLI
     - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v2
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "<1.6.0" # only use open source version of Terraform
 
     # Checks that all Terraform configuration files adhere to a canonical format
     - name: Terraform Format
-      run: terraform fmt -check -diff
+      run: terraform fmt -check -diff -recursive
 
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
-      run: terraform init -cloud=false
+      run: terraform init -backend=false
 
     # Validate the files, referring only to the configuration and not accessing any remote services
     - name: Terraform Validate
