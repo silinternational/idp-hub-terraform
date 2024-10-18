@@ -20,7 +20,7 @@ locals {
 
 module "app" {
   source  = "silinternational/ecs-app/aws"
-  version = "0.9.0"
+  version = "~> 0.9.1"
 
   app_env                  = local.app_env
   app_name                 = var.app_name
@@ -166,7 +166,7 @@ resource "aws_iam_user_policy" "dynamodb-logger-policy" {
  * Create ECR repo
  */
 module "ecr" {
-  source                = "github.com/silinternational/terraform-modules//aws/ecr?ref=8.8.0"
+  source                = "github.com/silinternational/terraform-modules//aws/ecr?ref=8.13.3"
   repo_name             = local.ecr_repo_name
   ecsInstanceRole_arn   = module.app.ecsInstanceRole_arn
   ecsServiceRole_arn    = module.app.ecsServiceRole_arn
