@@ -116,6 +116,7 @@ locals {
     dynamo_secret_access_key  = aws_iam_access_key.user_login_logger.secret
     enable_debug              = var.enable_debug
     help_center_url           = var.help_center_url
+    logging_level             = upper(var.logging_level)
     memory                    = var.memory
     mysql_host                = module.app.database_host
     mysql_database            = local.mysql_database
