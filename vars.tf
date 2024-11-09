@@ -107,7 +107,7 @@ variable "help_center_url" {
 }
 
 variable "logging_level" {
-  description = "Log level for log filter, may be one of: ERR, WARNING, NOTICE, INFO, DEBUG (case-sensitive)"
+  description = "Log level for log filter, may be one of: ERR, WARNING, NOTICE, INFO, DEBUG"
   type        = string
   default     = "NOTICE"
 }
