@@ -58,6 +58,10 @@
         "value": "true"
       },
       {
+        "name": "LOGGING_LEVEL",
+        "value": "${logging_level}"
+      },
+      {
         "name": "MYSQL_HOST",
         "value": "${mysql_host}"
       },

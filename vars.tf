@@ -106,6 +106,12 @@ variable "help_center_url" {
   default     = ""
 }
 
+variable "logging_level" {
+  description = "Log level for log filter, may be one of: ERR, WARNING, NOTICE, INFO, DEBUG"
+  type        = string
+  default     = "NOTICE"
+}
+
 variable "memory" {
   description = "The hard limit of memory (in MiB) to present to the task, expressed as an integer"
   type        = string
