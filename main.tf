@@ -8,7 +8,6 @@ locals {
   create_cd_user         = !local.is_multiregion || local.is_multiregion_primary
   mysql_database         = "session"
   mysql_user             = "root"
-  name_tag_suffix        = "${var.app_name}-${var.customer}-${local.app_environment}"
   tags = {
     managed_by        = "terraform"
     workspace         = terraform.workspace
