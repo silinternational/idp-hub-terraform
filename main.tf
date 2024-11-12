@@ -202,7 +202,7 @@ module "aws_backup" {
   count = var.enable_aws_backup ? 1 : 0
 
   source  = "silinternational/backup/aws"
-  version = "0.2.2"
+  version = "~> 0.2.2"
 
   app_name = "${var.app_name}-${var.aws_region}"
   app_env  = var.app_env
