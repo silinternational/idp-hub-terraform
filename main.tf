@@ -8,7 +8,6 @@ locals {
   create_cd_user         = !local.is_multiregion || local.is_multiregion_primary
   mysql_database         = "session"
   mysql_user             = "root"
-  name_tag_suffix        = "${var.app_name}-${var.customer}-${local.app_environment}"
   tags = {
     managed_by        = "terraform"
     workspace         = terraform.workspace
@@ -203,7 +202,7 @@ module "aws_backup" {
   count = var.enable_aws_backup ? 1 : 0
 
   source  = "silinternational/backup/aws"
-  version = "0.2.0"
+  version = "~> 0.2.2"
 
   app_name = "${var.app_name}-${var.aws_region}"
   app_env  = var.app_env
@@ -215,4 +214,6 @@ module "aws_backup" {
   notification_events    = var.aws_backup_notification_events
   sns_topic_name         = "${local.app_name_and_env}-backup-vault-events"
   sns_email_subscription = var.backup_sns_email
+  cold_storage_after     = 0
+  delete_after           = var.delete_recovery_point_after_days
 }
