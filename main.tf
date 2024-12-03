@@ -19,7 +19,7 @@ locals {
 
 module "app" {
   source  = "silinternational/ecs-app/aws"
-  version = "~> 0.9.1"
+  version = "~> 0.10.0"
 
   app_env                  = local.app_env
   app_name                 = var.app_name
@@ -44,6 +44,8 @@ module "app" {
   rds_ca_cert_identifier   = "rds-ca-rsa2048-g1"
   log_retention_in_days    = 60
   asg_tags                 = local.tags
+  disable_public_ipv4      = true
+  enable_ipv6              = true
   health_check = {
     matcher = "302,303"
     path    = "/"
