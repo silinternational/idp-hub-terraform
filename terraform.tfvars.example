@@ -1,0 +1,5 @@
+analytics_id      = "G-"
+aws_access_key    = ""
+aws_secret_key    = ""
+cloudflare_domain = "example.com"
+subdomain         = "hub"

@@ -42,8 +42,12 @@
         "value": "https://${subdomain}.${cloudflare_domain}/"
       },
       {
-        "name": "ENABLE_HUB_AUTHPROCS",
-        "value": "true"
+        "name": "DYNAMO_ACCESS_KEY_ID",
+        "value": "${dynamo_access_key_id}"
+      },
+      {
+        "name": "DYNAMO_SECRET_ACCESS_KEY",
+        "value": "${dynamo_secret_access_key}"
       },
       {
         "name": "HELP_CENTER_URL",
@@ -54,20 +58,24 @@
         "value": "true"
       },
       {
-        "name": "IDP_DISPLAY_NAME",
-        "value": "${idp_display_name}"
+        "name": "LOGGING_LEVEL",
+        "value": "${logging_level}"
       },
       {
-        "name": "IDP_NAME",
-        "value": "${idp_name}"
+        "name": "MYSQL_HOST",
+        "value": "${mysql_host}"
       },
       {
-        "name": "MEMCACHE_HOST1",
-        "value": "${memcache_host1}"
+        "name": "MYSQL_DATABASE",
+        "value": "${mysql_database}"
       },
       {
-        "name": "MEMCACHE_HOST2",
-        "value": "${memcache_host2}"
+        "name": "MYSQL_USER",
+        "value": "${mysql_user}"
+      },
+      {
+        "name": "MYSQL_PASSWORD",
+        "value": "${mysql_password}"
       },
       {
         "name": "SECRET_SALT",
@@ -80,6 +88,14 @@
       {
         "name": "SHOW_SAML_ERRORS",
         "value": "${show_saml_errors}"
+      },
+      {
+        "name": "ENABLE_DEBUG",
+        "value": "${enable_debug}"
+      },
+      {
+        "name": "THEME_COLOR_SCHEME",
+        "value": "${theme_color_scheme}"
       }
     ],
     "ulimits": null,
