@@ -2,6 +2,7 @@ locals {
   app_name_and_env       = "${var.app_name}-${local.app_env}"
   app_env                = var.app_env
   app_environment        = var.app_environment
+  aws_rds_ca_url         = "https://truststore.pki.rds.amazonaws.com/${var.aws_region}/${var.aws_region}-bundle.pem"
   ecr_repo_name          = local.app_name_and_env
   is_multiregion         = var.aws_region_secondary != ""
   is_multiregion_primary = local.is_multiregion && var.aws_region != var.aws_region_secondary
@@ -126,6 +127,7 @@ locals {
     secret_salt               = random_id.ssp_secret_salt.hex
     session_store_type        = "sql"
     show_saml_errors          = var.show_saml_errors
+    ssl_ca_base64             = data.external.fetch_rds_ca.result["ca_base64"]
     subdomain                 = var.subdomain
     theme_color_scheme        = var.theme_color_scheme
   })
@@ -218,4 +220,12 @@ module "aws_backup" {
   sns_email_subscription = var.backup_sns_email
   cold_storage_after     = 0
   delete_after           = var.delete_recovery_point_after_days
+}
+
+
+/*
+ * Fetch the AWS RDS certificate bundle for database server verification
+ */
+data "external" "fetch_rds_ca" {
+  program = ["bash", "${path.module}/fetch_ca.sh", local.aws_rds_ca_url]
 }

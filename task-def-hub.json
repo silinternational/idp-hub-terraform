@@ -78,6 +78,10 @@
         "value": "${mysql_password}"
       },
       {
+        "name": "SSL_CA_BASE64",
+        "value": "${ssl_ca_base64}"
+      },
+      {
         "name": "SECRET_SALT",
         "value": "${secret_salt}"
       },
