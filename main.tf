@@ -1,14 +1,15 @@
 locals {
-  app_name_and_env       = "${var.app_name}-${local.app_env}"
-  app_env                = var.app_env
-  app_environment        = var.app_environment
-  aws_rds_ca_url         = "https://truststore.pki.rds.amazonaws.com/${var.aws_region}/${var.aws_region}-bundle.pem"
-  ecr_repo_name          = local.app_name_and_env
-  is_multiregion         = var.aws_region_secondary != ""
-  is_multiregion_primary = local.is_multiregion && var.aws_region != var.aws_region_secondary
-  create_cd_user         = !local.is_multiregion || local.is_multiregion_primary
-  mysql_database         = "session"
-  mysql_user             = "root"
+  app_name_and_env        = "${var.app_name}-${local.app_env}"
+  app_env                 = var.app_env
+  app_environment         = var.app_environment
+  aws_rds_ca_url          = "https://truststore.pki.rds.amazonaws.com/${var.aws_region}/${var.aws_region}-bundle.pem"
+  ecr_repo_name           = local.app_name_and_env
+  is_multiregion          = var.aws_region_secondary != ""
+  is_multiregion_primary  = local.is_multiregion && var.aws_region != var.aws_region_secondary
+  create_cd_user          = !local.is_multiregion || local.is_multiregion_primary
+  mysql_database          = "session"
+  mysql_user              = "root"
+  database_engine_version = "10.6"
   tags = {
     managed_by        = "terraform"
     workspace         = terraform.workspace
@@ -20,7 +21,7 @@ locals {
 
 module "app" {
   source  = "silinternational/ecs-app/aws"
-  version = "~> 0.10.0"
+  version = "~> 0.10.4"
 
   app_env                  = local.app_env
   app_name                 = var.app_name
@@ -47,12 +48,26 @@ module "app" {
   asg_tags                 = local.tags
   disable_public_ipv4      = true
   enable_ipv6              = true
+
+  database_auto_minor_version_upgrade = true
+  database_engine_version             = local.database_engine_version
+  database_parameter_group_name       = aws_db_parameter_group.this.name
+
   health_check = {
     matcher = "302,303"
     path    = "/"
   }
 }
 
+resource "aws_db_parameter_group" "this" {
+  name   = var.app_name
+  family = "mariadb${local.database_engine_version}"
+
+  parameter {
+    name  = "require_secure_transport"
+    value = var.require_secure_transport ? "1" : "0"
+  }
+}
 
 /*
  * Create intermediate DNS record using Cloudflare (e.g. hub-us-east-2.example.com)
