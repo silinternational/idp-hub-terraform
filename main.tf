@@ -1,13 +1,15 @@
 locals {
-  app_name_and_env       = "${var.app_name}-${local.app_env}"
-  app_env                = var.app_env
-  app_environment        = var.app_environment
-  ecr_repo_name          = local.app_name_and_env
-  is_multiregion         = var.aws_region_secondary != ""
-  is_multiregion_primary = local.is_multiregion && var.aws_region != var.aws_region_secondary
-  create_cd_user         = !local.is_multiregion || local.is_multiregion_primary
-  mysql_database         = "session"
-  mysql_user             = "root"
+  app_name_and_env        = "${var.app_name}-${local.app_env}"
+  app_env                 = var.app_env
+  app_environment         = var.app_environment
+  aws_rds_ca_url          = "https://truststore.pki.rds.amazonaws.com/${var.aws_region}/${var.aws_region}-bundle.pem"
+  ecr_repo_name           = local.app_name_and_env
+  is_multiregion          = var.aws_region_secondary != ""
+  is_multiregion_primary  = local.is_multiregion && var.aws_region != var.aws_region_secondary
+  create_cd_user          = !local.is_multiregion || local.is_multiregion_primary
+  mysql_database          = "session"
+  mysql_user              = "root"
+  database_engine_version = "10.6"
   tags = {
     managed_by        = "terraform"
     workspace         = terraform.workspace
@@ -19,7 +21,7 @@ locals {
 
 module "app" {
   source  = "silinternational/ecs-app/aws"
-  version = "~> 0.10.0"
+  version = "~> 0.10.4"
 
   app_env                  = local.app_env
   app_name                 = var.app_name
@@ -46,12 +48,26 @@ module "app" {
   asg_tags                 = local.tags
   disable_public_ipv4      = true
   enable_ipv6              = true
+
+  database_auto_minor_version_upgrade = true
+  database_engine_version             = local.database_engine_version
+  database_parameter_group_name       = aws_db_parameter_group.this.name
+
   health_check = {
     matcher = "302,303"
     path    = "/"
   }
 }
 
+resource "aws_db_parameter_group" "this" {
+  name   = local.app_name_and_env
+  family = "mariadb${local.database_engine_version}"
+
+  parameter {
+    name  = "require_secure_transport"
+    value = var.require_secure_transport ? "1" : "0"
+  }
+}
 
 /*
  * Create intermediate DNS record using Cloudflare (e.g. hub-us-east-2.example.com)
@@ -126,6 +142,7 @@ locals {
     secret_salt               = random_id.ssp_secret_salt.hex
     session_store_type        = "sql"
     show_saml_errors          = var.show_saml_errors
+    ssl_ca_base64             = data.external.fetch_rds_ca.result["ca_base64"]
     subdomain                 = var.subdomain
     theme_color_scheme        = var.theme_color_scheme
   })
@@ -218,4 +235,12 @@ module "aws_backup" {
   sns_email_subscription = var.backup_sns_email
   cold_storage_after     = 0
   delete_after           = var.delete_recovery_point_after_days
+}
+
+
+/*
+ * Fetch the AWS RDS certificate bundle for database server verification
+ */
+data "external" "fetch_rds_ca" {
+  program = ["bash", "${path.module}/fetch_ca.sh", local.aws_rds_ca_url]
 }

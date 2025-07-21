@@ -68,6 +68,12 @@ variable "docker_tag" {
   default     = "latest"
 }
 
+variable "require_secure_transport" {
+  description = "Set to true to require SSL for database connection."
+  type        = bool
+  default     = false
+}
+
 
 /*
  * Task definition configuration
