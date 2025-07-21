@@ -60,7 +60,7 @@ module "app" {
 }
 
 resource "aws_db_parameter_group" "this" {
-  name   = var.app_name
+  name   = local.app_name_and_env
   family = "mariadb${local.database_engine_version}"
 
   parameter {
